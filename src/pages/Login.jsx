@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Context } from '../context/Context';
 import Cookies from 'js-cookie';
 import axios from 'axios';
+import { BASE_URL } from '../services/helper';
 
 export default function Login() {
     const [error, setError] = useState('');
@@ -21,7 +22,7 @@ export default function Login() {
         if (emailRegex.test(email.current.value) && password.current.value.length >= 6) {
             console.log(formData); 
             try {
-                axios.post('http://localhost:9000/login', formData)
+                axios.post(`${BASE_URL}/login`, formData)
                     .then(data => {
                         setError('login successful!');
                         navigate("/");

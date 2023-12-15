@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { BASE_URL } from '../services/helper';
 
 export default function Register() {
     const [error, setError] = useState('');
@@ -9,7 +10,7 @@ export default function Register() {
         email: '',
         password: ''
     });
-    const name = useRef(null); 
+    const name = useRef(null);
     const email = useRef(null);
     const password = useRef(null);
     const confirmPassword = useRef(null);
@@ -22,21 +23,21 @@ export default function Register() {
         if (name.current.value.length > 2 && emailRegex.test(email.current.value) && password.current.value.length >= 6 && password.current.value === confirmPassword.current.value) {
 
             console.log(formData);
-            axios.post('http://localhost:9000/register', formData)
+            axios.post(`${BASE_URL}/register`, formData)
                 .then((data) => {
                     console.log(data);
                     setError('registration successful!');
-                    navigate("/login"); 
+                    navigate("/login");
                 })
                 .catch((error) => {
                     alert(error);
                 });
-                
-                // upload image to the cloudinary
-                uploadImage(); 
 
-        } else if(!name.current.value.length > 2) {
-            setError("name is required"); 
+            // upload image to the cloudinary
+            uploadImage();
+
+        } else if (!name.current.value.length > 2) {
+            setError("name is required");
         } else if (email.current.value.length === 0 && password.current.value.length === 0) {
             setError('Email and password are required!')
         } else if (!emailRegex.test(email.current.value)) {
@@ -60,18 +61,18 @@ export default function Register() {
 
     const [imageSelected, setImageSelected] = useState("")
     const uploadImage = () => {
-        const formData = new FormData(); 
-        formData.append('file', imageSelected); 
-        formData.append('upload_preset', "j5quhwqi"); 
-        console.log(imageSelected); 
+        const formData = new FormData();
+        formData.append('file', imageSelected);
+        formData.append('upload_preset', "j5quhwqi");
+        console.log(imageSelected);
 
         axios.post('https://api.cloudinary.com/v1_1/domlldpib/image/upload', formData)
-        .then(response => {
-            console.log(response)
-        })
-        .catch(error => {
-            console.log(error); 
-        })
+            .then(response => {
+                console.log(response)
+            })
+            .catch(error => {
+                console.log(error);
+            })
 
     }
 
@@ -86,7 +87,7 @@ export default function Register() {
                 <input className='p-2 outline-none rounded-sm' type="password" name="confirmPassword" autoComplete='off' id="confirmPassword" placeholder='confirm Password' ref={confirmPassword} />
                 <input type="file" name="profilePhoto" id="profilePhoto" onChange={(event) => {
                     setImageSelected(event.target.files[0]);
-                }} /> 
+                }} />
                 <button className='bg-orange-500 text-white font-semibold text-lg py-2 rounded-sm' type='submit' onClick={handleSubmit}>Register</button>
                 <div className="text-center">Already have account <Link className='text-blue-500 font-semibold' to={"/login"}>Login</Link></div>
             </form>

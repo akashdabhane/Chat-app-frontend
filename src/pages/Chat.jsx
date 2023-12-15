@@ -11,6 +11,7 @@ import LeftPanel from '../components/LeftPanel';
 import ChatWindow from '../components/ChatWindow';
 import TopUserBar from '../components/TopUserBar';
 import '../styles/index.css'
+import { BASE_URL } from '../services/helper';
 // import { Picker } from 'emoji-mart';
 // import 'emoji-mart/css/emoji-mart.css';
 
@@ -67,7 +68,7 @@ export default function Chat({ children }) {
 
 
     useEffect(() => {
-        axios.get('http://localhost:9000/')
+        axios.get(BASE_URL)
             .then((data) => {
                 setUsers(data.data);
             })
