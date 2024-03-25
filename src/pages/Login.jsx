@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import axios from 'axios'
 import { useFormik } from 'formik'
 import { loginSchema } from '../validationSchema/loginSchema';
-
+import { baseUrl } from '../utils/helper';
 
 export default function Login() {
     const [formData, setFormData] = useState({
@@ -44,7 +44,7 @@ export default function Login() {
     useEffect(() => {
         if (formData.email !== "" && formData.password !== "") {
             try {
-                axios.post('http://localhost:9000/login', formData)
+                axios.post(`${baseUrl}/login`, formData)
                     .then(data => {
                         setError('login successful!');
                         navigate("/");

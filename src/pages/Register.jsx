@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useFormik } from 'formik';
 import { registrationSchema } from '../validationSchema/registrationSchema';
+import { baseUrl } from '../utils/helper';
 
 export default function Register() {
     const [formData, setFormData] = useState(null);
@@ -38,7 +39,7 @@ export default function Register() {
         console.log(formData);
         if (formData !== null) {
             try {
-                axios.post('http://localhost:9000/register', formData)
+                axios.post(`${baseUrl}/register`, formData)
                     .then((data) => {
                         console.log(data);
                         setError('registration successful!');

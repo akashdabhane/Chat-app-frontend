@@ -7,6 +7,7 @@ import Navbar from "./components/Navbar";
 import Chat from "./pages/Chat";
 import { Context } from "./context/Context";
 import { useState } from "react";
+import PageNotFound from './pages/PageNotFound';
 const socket = io("http://localhost:9000");
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/" element={ Cookies.get('isLogin') === 'true' ? <Chat /> : <Login />}  />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path='*' element={<PageNotFound />} />
           </Routes>
         </BrowserRouter>
       </Context.Provider>
