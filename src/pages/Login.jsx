@@ -46,17 +46,22 @@ export default function Login() {
             try {
                 axios.post(`${baseUrl}/login`, formData)
                     .then(data => {
-                        setError('login successful!');
-                        navigate("/");
-                        Cookies.set('email', data.data.email, { expires: 1 });
-
-                        Cookies.set('isLogin', true, { expires: 1 });
-                        const loginStatus = Cookies.get('isLogin');
-                        setIsLogin(loginStatus);
-
-                        Cookies.set('user', data.data.name, { expires: 1 });
-                        const userStatus = Cookies.get('user');
-                        setUser(data.name);
+                        console.log(data)
+                        if(data) {
+                            setError('login successful!');
+                            navigate("/");
+                            Cookies.set('email', data.data.email, { expires: 1 });
+    
+                            Cookies.set('isLogin', true, { expires: 1 });
+                            const loginStatus = Cookies.get('isLogin');
+                            setIsLogin(loginStatus);
+    
+                            Cookies.set('user', data.data.name, { expires: 1 });
+                            const userStatus = Cookies.get('user');
+                            setUser(data.name);
+                        }else {
+                            setError('Invalid email or password');
+                        }
 
                     })
                     .catch(error => {

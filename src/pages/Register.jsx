@@ -50,12 +50,12 @@ export default function Register() {
                     });
 
                 // upload image to the cloudinary
-                uploadImage();
+                // uploadImage();
             } catch (error) {
                 console.log(error);
             }
         }
-    }, [])
+    }, [formData])
 
 
     const [imageSelected, setImageSelected] = useState("")

@@ -18,7 +18,7 @@ export default function ChatWindow({ chatPanel }) {
   // };
 
   return (
-      <div className="showMessages pt-6 px-2 h-[70vh] flex flex-col">
+      <div className="showMessages py-4 px-2 h-[70vh] flex flex-col">
         {
           chatPanel.map((item, index) => (
             <div key={index} className={`w-fit text-black p-2 py-1 mx-4 my-1 rounded-lg ${Cookies.get('user') === item.author ? " rounded-tr-[0%] float-right bg-blue-300 self-end" : "rounded-tl-[0%] float-left bg-green-300 self-start"}`}>

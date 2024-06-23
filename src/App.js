@@ -1,3 +1,4 @@
+import { useState } from "react";
 import io from 'socket.io-client';
 import Cookies from "js-cookie";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -6,7 +7,6 @@ import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
 import Chat from "./pages/Chat";
 import { Context } from "./context/Context";
-import { useState } from "react";
 import PageNotFound from './pages/PageNotFound';
 const socket = io("http://localhost:9000");
 
