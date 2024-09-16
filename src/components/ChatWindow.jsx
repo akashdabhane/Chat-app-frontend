@@ -1,7 +1,8 @@
 import React from 'react'
 import Cookies from 'js-cookie'
 
-export default function ChatWindow({ chatPanel }) {
+export default function ChatWindow({ chatMessageList, chatInfo }) {
+  console.log(chatMessageList);
   // const [firstName, setFirstName] = useState(''); 
   // const [fullName, setFullName] = useState(''); 
 
@@ -18,15 +19,22 @@ export default function ChatWindow({ chatPanel }) {
   // };
 
   return (
-      <div className="showMessages py-4 px-2 h-[70vh] flex flex-col">
-        {
-          chatPanel.map((item, index) => (
-            <div key={index} className={`w-fit text-black p-2 py-1 mx-4 my-1 rounded-lg ${Cookies.get('user') === item.author ? " rounded-tr-[0%] float-right bg-blue-300 self-end" : "rounded-tl-[0%] float-left bg-green-300 self-start"}`}>
-              <div className=''><span className='text-sm text-pink-500'>{Cookies.get('user') === item.author ? "You" : item.author} :</span> {item.message} </div>
-              <div className='text-[.60rem] leading-3 float-right '>{item.time}</div>
+    <div className="showMessages py-4 px-2 h-[70vh] flex flex-col">
+      {
+        chatMessageList.map((item, index) => (
+          <div key={index} className={`w-fit text-black p-2 py-1 mx-4 my-1 rounded-lg ${Cookies.get('userId') === item.author ? " rounded-tr-[0%] float-right bg-blue-300 self-end" : "rounded-tl-[0%] float-left bg-green-300 self-start"}`}>
+            <div className=''>
+              {
+                chatInfo.isGroupChat && (
+                  <span className='text-sm text-pink-500'>{Cookies.get('userId') === item.author ? "You" : item.author} :</span>
+                )
+              }
+              {item.message}
             </div>
-          ))
-        }
-      </div>
+            <div className='text-[.60rem] leading-3 float-right '>{item.time}</div>
+          </div>
+        ))
+      }
+    </div>
   )
 }

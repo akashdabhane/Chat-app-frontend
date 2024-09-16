@@ -1,20 +1,15 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Context } from '../context/Context';
-import Cookies from 'js-cookie';
+import { useAuth } from '../context/Context';
 import axios from 'axios'
 import { useFormik } from 'formik'
 import { loginSchema } from '../validationSchema/loginSchema';
 import { baseUrl } from '../utils/helper';
+import Cookies from 'js-cookie';
 
 export default function Login() {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    });
     const [error, setError] = useState('');
-    const [user, setUser] = useState("");
-    const { setIsLogin, setEmail } = useContext(Context);
+    const { setIsAuthenticated } = useAuth();
     const navigate = useNavigate();
 
 
@@ -25,60 +20,41 @@ export default function Login() {
     };
 
     // values, handleBlur, handleChange, handleSubmit, errors, touched
+    // By disabling validation onChange and onBlur formik will validate on submit.
     const formik = useFormik({
         initialValues,
         validationSchema: loginSchema,
         validateOnChange: true,
         validateOnBlur: false,
-        // By disabling validation onChange and onBlur formik will validate on submit.
         onSubmit: (values, action) => {
-            console.log(values);
-            setFormData(values);
+            console.log(values)
+            handleLogin(values);    // function to handle login 
 
             // to get rid of all the values after submitting the form
             action.resetForm();
         }
     })
 
-
-    useEffect(() => {
-        if (formData.email !== "" && formData.password !== "") {
-            try {
-                axios.post(`${baseUrl}/login`, formData)
-                    .then(data => {
-                        console.log(data)
-                        if(data) {
-                            setError('login successful!');
-                            navigate("/");
-                            Cookies.set('email', data.data.email, { expires: 1 });
-    
-                            Cookies.set('isLogin', true, { expires: 1 });
-                            const loginStatus = Cookies.get('isLogin');
-                            setIsLogin(loginStatus);
-    
-                            Cookies.set('user', data.data.name, { expires: 1 });
-                            const userStatus = Cookies.get('user');
-                            setUser(data.name);
-                        }else {
-                            setError('Invalid email or password');
-                        }
-
-                    })
-                    .catch(error => {
-                        setError(error);
-                    })
-
-            } catch (error) {
-                console.log('error occured')
+    const handleLogin = async (formData) => {
+        try {
+            const response = await axios.post(`${baseUrl}/users/login`, formData)
+            console.log(response.data.data)
+            if (response.status === 200) {
+                setError('login successful!');
+                Cookies.set('accessToken', response.data.data.accessToken); // set token in cookies
+                Cookies.set('refreshToken', response.data.data.refreshToken); // set token in cookies
+                Cookies.set('name', response.data.data.user.name); // set username in cookies
+                Cookies.set('userId', response.data.data.user._id); 
+                Cookies.set("isAuthenticated", true);
+                setIsAuthenticated(true);
+                navigate("/");
+            } else {
+                setError('Invalid email or password');
             }
-
-
-            // setIsLogin(Cookies.get('isLogin'));
-            // Cookies.set('isLogin', true, { expires: 1 });    // cookies to store login status, will expire after 1 day
-            // Cookies.set('user', user, { expires: 1 });
+        } catch (error) {
+            setError(error.message || 'Error occured while logging in');
         }
-
-    }, [formData])
+    }
 
     return (
         <div className='flex justify-center h-[100vh]'>
