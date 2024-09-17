@@ -123,6 +123,34 @@ export default function Chat({ socket }) {
         }
     }
 
+    const handleSearchClick = async (email) => {
+        if(!isValidEmail) {
+            console.log("Invalid email address for search", email);
+            return "Invalid email address for search";
+        }
+        
+        try {
+            const user = await axios.get(`${baseUrl}/users/search?email=${email}`,{
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("accessToken")}`
+                },
+                withCredentials: true
+            })
+    
+            console.log(user);
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const isValidEmail = (email)=> {
+        // Regular expression to match a valid email format
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        // Test the email against the pattern
+        return emailPattern.test(email);
+    }
+    
 
     return (
         <>
@@ -132,7 +160,10 @@ export default function Chat({ socket }) {
                         <input className='w-full px-2 p-1 text-md outline-none border-none bg-slate-600 rounded' type="text" name="searchUser" id="searchUser" placeholder='search here...' ref={searchBox} />
                         <span className='text-lg flex items-center px-2 space-x-2 '>
                             <BiSearchAlt2 className='w-full cursor-pointer' onClick={() => {
-                                searchBox.current.focus();
+                                searchBox.current.value === "" ?
+                                    searchBox.current.focus()
+                                    :
+                                    handleSearchClick(searchBox.current.value);
                             }} />
                             <FiMoreVertical className='text-3xl cursor-pointer' onClick={() => setShowUserProfile(true)} />
                         </span>
