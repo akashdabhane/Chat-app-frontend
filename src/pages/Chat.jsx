@@ -79,11 +79,25 @@ export default function Chat({ socket }) {
 
     useEffect(() => {
         console.log(chatInfo);
-        setChatMessageList([]);
+
         if (Object.keys(chatInfo).length > 0) {
             console.log(chatInfo);
             setRoomName(chatInfo._id);
         }
+
+        axios.get(`${baseUrl}/chats/get-messages-list/${chatInfo._id}`, {
+            headers: {
+                Authorization: `Bearer ${Cookies.get("accessToken")}`
+            },
+            withCredentials: true
+        })
+            .then((response) => {
+                console.log(response);
+                setChatMessageList(response.data.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
 
     }, [chatInfo]);
 
@@ -123,34 +137,21 @@ export default function Chat({ socket }) {
         }
     }
 
-    const handleSearchClick = async (email) => {
-        if(!isValidEmail) {
-            console.log("Invalid email address for search", email);
-            return "Invalid email address for search";
-        }
-        
+    const handleSearchClick = async (inputText) => {
         try {
-            const user = await axios.get(`${baseUrl}/users/search?email=${email}`,{
+            const user = await axios.get(`${baseUrl}/users/search?inputText=${inputText}`, {
                 headers: {
                     Authorization: `Bearer ${Cookies.get("accessToken")}`
                 },
                 withCredentials: true
             })
-    
+
             console.log(user);
         } catch (error) {
             console.log(error)
         }
     }
 
-    const isValidEmail = (email)=> {
-        // Regular expression to match a valid email format
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        
-        // Test the email against the pattern
-        return emailPattern.test(email);
-    }
-    
 
     return (
         <>
