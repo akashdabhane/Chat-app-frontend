@@ -48,7 +48,7 @@ export default function ChatWindow({ chatMessageList, chatInfo }) {
                 <div className=''>
                   {
                     chatInfo.isGroupChat && (
-                      <span className='text-sm text-pink-500'>{(Cookies.get('userId') === item.author._id || Cookies.get('userId') === item.author) ? "You" : item.author.name || item.author} :</span>
+                      <span className='text-sm text-pink-500'>{(Cookies.get('userId') === item.author._id || Cookies.get('userId') === item.author) ? "You" : item.author.name || item.author}: </span>
                     )
                   }
                   {item.message}

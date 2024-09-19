@@ -85,21 +85,22 @@ export default function Chat({ socket }) {
         if (Object.keys(chatInfo).length > 0) {
             console.log(chatInfo);
             setRoomName(chatInfo._id);
+
+            axios.get(`${baseUrl}/chats/get-messages-list/${chatInfo._id}`, {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("accessToken")}`
+                },
+                withCredentials: true
+            })
+                .then((response) => {
+                    console.log(response);
+                    setChatMessageList(response.data.data);
+                })
+                .catch((error) => {
+                    console.log(error);
+                })
         }
 
-        axios.get(`${baseUrl}/chats/get-messages-list/${chatInfo._id}`, {
-            headers: {
-                Authorization: `Bearer ${Cookies.get("accessToken")}`
-            },
-            withCredentials: true
-        })
-            .then((response) => {
-                console.log(response);
-                setChatMessageList(response.data.data);
-            })
-            .catch((error) => {
-                console.log(error);
-            })
 
     }, [chatInfo]);
 
@@ -175,7 +176,7 @@ export default function Chat({ socket }) {
                         isLoading ?
                             <ContactListSkeleton />
                             :
-                            <LeftPanel users={users} setChatInfo={setChatInfo} handleChatOnClick={handleChatOnClick} />
+                            <LeftPanel users={users} setChatInfo={setChatInfo} handleChatOnClick={handleChatOnClick} chatInfo={chatInfo} />
                     }
                 </div>
                 <div className="room bg-slate-500 w-full flex flex-col justify-between lg:rounded-r-2xl">
@@ -195,7 +196,7 @@ export default function Chat({ socket }) {
                             (
                                 <>
                                     <TopUserBar userData={userData} chatInfo={chatInfo} setChatInfo={setChatInfo} setShowChatProfile={setShowChatProfile} />
-                                    <ScrollToBottom className="showMessages h-[90%] w-[100%] overflow-x-hidden flex flex-col ">
+                                    <ScrollToBottom className="showMessages h-[90%] w-[100%] overflow-x-hidden flex flex-col pb-2">
                                         <ChatWindow chatMessageList={chatMessageList} chatInfo={chatInfo} />
                                     </ScrollToBottom>
                                     <div className="inputs flex items-center border-t-2 bg-slate-700 border-gray-800 space-x-1 p-1 pr-4 lg:rounded-br-2xl">
