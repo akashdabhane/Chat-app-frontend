@@ -25,7 +25,7 @@ export default function ChatWindow({ chatMessageList, chatInfo }) {
     <div className="showMessages py-4 px-2 h-[70vh] flex flex-col">
       {
         chatMessageList.map((item, index) => {
-          const currentDate = new Date(item.createdAt).toUTCString().slice(0, 16); // Extract the date part
+          const currentDate = new Date(item.createdAt || Date.now()).toUTCString().slice(0, 16); // Extract the date part
 
           const showDate = currentDate !== previousDate; // Compare with the previous date
 

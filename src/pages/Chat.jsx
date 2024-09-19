@@ -16,6 +16,7 @@ import '../styles/index.css'
 import { baseUrl } from '../utils/helper';
 import ContactListSkeleton from '../loadingSkeleton/ContactListSkeleton';
 import UserProfilePopup from '../popups/UserProfilePopup';
+import ChatProfilePopup from '../popups/ChatProfilePopup';
 // import { Picker } from 'emoji-mart';
 // import 'emoji-mart/css/emoji-mart.css';
 
@@ -32,6 +33,7 @@ export default function Chat({ socket }) {
     const searchBox = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showUserProfile, setShowUserProfile] = useState(false);
+    const [showChatProfile, setShowChatProfile] = useState(false);
 
     // use effects 
     useEffect(() => {
@@ -192,7 +194,7 @@ export default function Chat({ socket }) {
                             :
                             (
                                 <>
-                                    <TopUserBar userData={userData} chatInfo={chatInfo} setChatInfo={setChatInfo} />
+                                    <TopUserBar userData={userData} chatInfo={chatInfo} setChatInfo={setChatInfo} setShowChatProfile={setShowChatProfile} />
                                     <ScrollToBottom className="showMessages h-[90%] w-[100%] overflow-x-hidden flex flex-col ">
                                         <ChatWindow chatMessageList={chatMessageList} chatInfo={chatInfo} />
                                     </ScrollToBottom>
@@ -211,6 +213,9 @@ export default function Chat({ socket }) {
                 </div>
                 {
                     showUserProfile && <UserProfilePopup closeProfilePopup={() => setShowUserProfile(false)} />
+                }
+                {
+                    showChatProfile && <ChatProfilePopup closeChatProfilePopup={() => setShowChatProfile(false)} chatInfo={chatInfo} />
                 }
             </div >
         </>

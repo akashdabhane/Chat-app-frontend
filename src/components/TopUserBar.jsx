@@ -4,7 +4,7 @@ import { FcVideoCall } from 'react-icons/fc';
 import { baseUrl } from '../utils/helper';
 import Cookies from 'js-cookie';
 
-export default function TopUserBar({ userData, chatInfo, setChatInfo }) {
+export default function TopUserBar({ userData, chatInfo, setChatInfo, setShowChatProfile }) {
     const [otherUser, setOtherUser] = useState({});
     console.log(chatInfo)
 
@@ -35,7 +35,7 @@ export default function TopUserBar({ userData, chatInfo, setChatInfo }) {
     return (
         <div>
             <div className="flex items-center justify-between p-2 pr-10 cursor-pointer bg-slate-700 lg:rounded-tr-2xl">
-                <div className="space-x-2 flex items-center">
+                <div className="space-x-2 flex items-center" onClick={() => setShowChatProfile(true)}>
                     <img className='rounded-[50%] w-10 h-10' src="https://images.pexels.com/photos/10057618/pexels-photo-10057618.jpeg?auto=compress&cs=tinysrgb&w=600" alt="profileImg" />
                     <div className='leading-5'>
                         <div className="flex items-center space-x-1">
