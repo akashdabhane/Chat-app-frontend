@@ -9,6 +9,7 @@ import Cookies from 'js-cookie';
 function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo }) {
   const [isLoading, setIsLoading] = useState(true);
   const [otherUser, setOtherUser] = useState({});
+  const [groupMembers, setGroupMembers] = useState([]);
 
   let secondUserId;
   useEffect(() => {
@@ -32,6 +33,27 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo }) {
         })
         .catch(error => {
           console.log(error)
+        })
+        .finally(() => {
+          setIsLoading(false);
+        })
+    }
+  }, [])
+
+  useEffect(() => {
+    if (chatInfo.isGroupChat) {
+      axios.get(`${baseUrl}/groups/get-all-group-users/${chatInfo?._id}`, {
+        headers: {
+          'Authorization': `Bearer ${Cookies.get('accessToken')}`,
+        },
+        withCredentials: true,
+      })
+        .then((response) => {
+          console.log(response.data.data.participants)
+          setGroupMembers(response.data.data.participants);
+        })
+        .catch((error) => {
+          console.log(error);
         })
         .finally(() => {
           setIsLoading(false);
@@ -107,6 +129,22 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo }) {
               <div>
                 <span className='block text-gray-300'>Description</span>
                 <p>{chatInfo?.description}</p>
+              </div>
+              <div className="">
+                <h3 className='text-xl font-semibold mb-4 '>Group Members:</h3>
+                <ul className=''>
+                  {
+                    groupMembers?.map((item, index) => (
+                      <li key={index} className={`flex items-center space-x-2 border-b p-2 ${index === 0 && "border-t"}`}>
+                        <img className={`rounded-full cursor-pointer text-center w-[32px] h-[32px] mr-4`}
+                          src={item?.profileImage || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s"}
+                          alt="profile photo" width={32} height={32}
+                        />
+                        <p>{item?.name}</p>
+                      </li>
+                    ))
+                  }
+                </ul>
               </div>
             </>
           }
