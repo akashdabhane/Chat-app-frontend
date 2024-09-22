@@ -56,6 +56,7 @@ function UserProfilePopup({ closeProfilePopup }) {
                         alt="profile photo" width={100} height={100}
                     // onMouseEnter={() => setHoverCSS("")}
                     // onMouseLeave={() => setHoverCSS("")}
+                    // onClick={handleProfileImageClick}
                     />
                     <div className="flex justify-between items-center">
                         <input className='bg-transparent outline-slate-800'

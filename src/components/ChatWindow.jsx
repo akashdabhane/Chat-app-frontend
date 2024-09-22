@@ -1,24 +1,48 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie'
+import TypingIndicator from './TypingIndicator';
 
-export default function ChatWindow({ chatMessageList, chatInfo }) {
+export default function ChatWindow({ chatMessageList, chatInfo, socket, isUserTyping, roomName }) {
   console.log(chatMessageList);
-  // const [firstName, setFirstName] = useState(''); 
-  // const [fullName, setFullName] = useState(''); 
+  const [otherUserTyping, setOtherUserTyping] = useState(null);
 
-  // const extractFirstName = () => {
-  //   // Split the full name into an array of words
-  //   const nameArray = fullName.split(' ');
+  const extractFirstName = (fullName) => {
+    // Split the full name into an array of words
+    const nameArray = fullName.split(' ');
 
-  //   // Get the first element of the array as the first name
-  //   if (nameArray.length > 0) {
-  //     setFirstName(nameArray[0]);
-  //   } else {
-  //     setFirstName(''); // Handle cases where there's no name entered
-  //   }
-  // };
+    if (nameArray.length > 0) {
+      // Get the first element of the array as the first name
+      return nameArray[0];
+    } else {
+      return null;
+    }
+  };
 
   let previousDate = "";
+
+  useEffect(() => {
+    if (isUserTyping) {
+      const userName = Cookies.get('name');
+      const userId = Cookies.get('userId');
+      socket.emit("send-typing-flag", { roomName, userName, userId });
+    } else if (!isUserTyping) {
+      const userName = Cookies.get('name');
+      const userId = Cookies.get('userId');
+      socket.emit("send-typing-stop-flag", { roomName, userName, userId });
+    }
+  }, [isUserTyping])
+
+  useEffect(() => {
+    socket.on("receive-typing-flag", (data) => {
+      console.log(`${data.userName} is typing...`);
+      setOtherUserTyping(data);
+    })
+
+    socket.on("receive-typing-stop-flag", (data) => {
+      console.log(`${data.userName} is stop typing...`);
+      setOtherUserTyping(null);
+    })
+  }, [socket])
 
 
   return (
@@ -45,10 +69,16 @@ export default function ChatWindow({ chatMessageList, chatInfo }) {
               <div className={`w-fit text-black p-2 py-1 mx-4 my-1 rounded-lg ${(Cookies.get('userId') === item.author._id || Cookies.get('userId') === item.author) ?
                 " rounded-tr-[0%] float-right bg-blue-300 self-end" :
                 "rounded-tl-[0%] float-left bg-green-300 self-start"}`}>
-                <div className=''>
+                <div className='max-w-xl'>
                   {
                     chatInfo.isGroupChat && (
-                      <span className='text-sm text-pink-500'>{(Cookies.get('userId') === item.author._id || Cookies.get('userId') === item.author) ? "You" : item.author.name || item.author}: </span>
+                      <span className='text-sm text-pink-500'>
+                        {
+                          (Cookies.get('userId') === item.author._id || Cookies.get('userId') === item.author)
+                            ? "You"
+                            : extractFirstName(item.author.name) || extractFirstName(item.author)
+                        }:
+                      </span>
                     )
                   }
                   {item.message}
@@ -64,6 +94,21 @@ export default function ChatWindow({ chatMessageList, chatInfo }) {
             </React.Fragment>
           )
         })
+      }
+      {
+        otherUserTyping !== null &&
+        (
+          <div className={`w-fit text-black p-2 py-1 mx-4 my-1 rounded-lg rounded-tl-[0%] float-left bg-green-300 self-start`}>
+            <div className='flex items-center space-x-2 py-2'>
+              {
+                chatInfo.isGroupChat && (
+                  <span className='text-sm text-pink-500'>{extractFirstName(otherUserTyping?.userName)}: </span>
+                )
+              }
+              <TypingIndicator />
+            </div>
+          </div>
+        )
       }
     </div>
   )

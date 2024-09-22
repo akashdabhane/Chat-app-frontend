@@ -4,8 +4,9 @@ import { FcVideoCall } from 'react-icons/fc';
 import { baseUrl } from '../utils/helper';
 import Cookies from 'js-cookie';
 
-export default function TopUserBar({ userData, chatInfo, setChatInfo, setShowChatProfile }) {
+export default function TopUserBar({ userData, chatInfo, setShowChatProfile, socket }) {
     const [otherUser, setOtherUser] = useState({});
+    const [activeUser, setActiveUser] = useState(null);
     console.log(chatInfo)
 
 
@@ -34,14 +35,23 @@ export default function TopUserBar({ userData, chatInfo, setChatInfo, setShowCha
         }
     }, [chatInfo])
 
+    socket.on("receive-active-flag", (data) => {
+        console.log(`${data.userName} is active`);
+        setActiveUser(true);
+    });
+
+    socket.on("receive-inactive-flag", (data) => {
+        console.log(`${data.userName} is inactive`);
+        setActiveUser(false);
+    });
+
     return (
         <div>
             <div className="flex items-center justify-between p-2 pr-10 cursor-pointer bg-slate-700 lg:rounded-tr-2xl">
                 <div className="space-x-2 flex items-center" onClick={() => setShowChatProfile(true)}>
-                    <img className='rounded-[50%] w-10 h-10' src={chatInfo.profileImage || chatInfo.isGroupChat ? "https://media.istockphoto.com/id/1158561473/vector/three-persons-icon-black-vector.jpg?s=612x612&w=0&k=20&c=UvL4Nvz9nL4zi5RdjAabosuFer98suMTA-FheZ2KLlQ=" : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s" } alt="profileImg" />
+                    <img className='rounded-[50%] w-10 h-10' src={chatInfo.profileImage || chatInfo.isGroupChat ? "https://media.istockphoto.com/id/1158561473/vector/three-persons-icon-black-vector.jpg?s=612x612&w=0&k=20&c=UvL4Nvz9nL4zi5RdjAabosuFer98suMTA-FheZ2KLlQ=" : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s"} alt="profileImg" />
                     <div className='leading-5'>
-                        <div className="flex items-center space-x-1">
-                            <span className={`${userData.isActive ? 'hidden' : "block w-2 h-2 bg-green-500 rounded-[50%]"} `}></span>
+                        <div className="flex items-start space-x-1 h-9">
                             {
                                 chatInfo?.isGroupChat ?
                                     <span>{chatInfo && chatInfo.name}</span>
@@ -49,13 +59,14 @@ export default function TopUserBar({ userData, chatInfo, setChatInfo, setShowCha
                                     <span>{otherUser && otherUser.name}</span>
                             }
                         </div>
-                        <div className='flex items-center'>
-                            {
-                                userData.isTyping && (
-                                    <span className='text-green-500'>typing..</span>
-                                )
-                            }
-                        </div>
+                        {
+                            activeUser && (
+                                <div className='flex items-center space-x-1'>
+                                    <span className={`${userData.isActive ? 'hidden' : "block w-2 h-2 bg-green-500 rounded-[50%]"} `}></span>
+                                    <span className='text-gray-300 text-xs'>Active</span>
+                                </div>
+                            )
+                        }
                     </div>
                 </div>
                 <span className='text-2xl text-white'>

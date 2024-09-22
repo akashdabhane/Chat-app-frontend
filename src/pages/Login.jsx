@@ -37,14 +37,19 @@ export default function Login() {
 
     const handleLogin = async (formData) => {
         try {
-            const response = await axios.post(`${baseUrl}/users/login`, formData)
+            const response = await axios.post(`${baseUrl}/users/login`, formData, {
+                withCredentials: true,
+                headers: {
+                    'Authorization': `Bearer ${Cookies.get('accessToken')}`,
+                }
+            })
             console.log(response.data.data)
             if (response.status === 200) {
                 setError('login successful!');
                 Cookies.set('accessToken', response.data.data.accessToken); // set token in cookies
                 Cookies.set('refreshToken', response.data.data.refreshToken); // set token in cookies
                 Cookies.set('name', response.data.data.user.name); // set username in cookies
-                Cookies.set('userId', response.data.data.user._id); 
+                Cookies.set('userId', response.data.data.user._id);
                 Cookies.set("isAuthenticated", true);
                 setIsAuthenticated(true);
                 navigate("/");

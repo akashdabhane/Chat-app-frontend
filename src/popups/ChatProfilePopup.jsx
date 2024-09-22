@@ -5,6 +5,9 @@ import { baseUrl } from '../utils/helper';
 import { IoClose } from "react-icons/io5";
 import { MdOutlineEdit } from "react-icons/md";
 import Cookies from 'js-cookie';
+import { MdAddLink } from "react-icons/md";
+import { MdPersonAddAlt1 } from "react-icons/md";
+
 
 function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -133,9 +136,17 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo }) {
               <div className="">
                 <h3 className='text-xl font-semibold mb-4 '>Group Members:</h3>
                 <ul className=''>
+                  <li className='flex items-center space-x-2 border-b border-t p-2 cursor-pointer'>
+                    <MdPersonAddAlt1 className='text-xl' />
+                    <span>Add member</span>
+                  </li>
+                  <li className='flex items-center space-x-2 border-b p-2 cursor-pointer'>
+                    <MdAddLink className='text-xl' />
+                    <span>Invite to group via link</span>
+                  </li>
                   {
                     groupMembers?.map((item, index) => (
-                      <li key={index} className={`flex items-center space-x-2 border-b p-2 ${index === 0 && "border-t"}`}>
+                      <li key={index} className={`flex items-center space-x-2 border-b p-2`}>
                         <img className={`rounded-full cursor-pointer text-center w-[32px] h-[32px] mr-4`}
                           src={item?.profileImage || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s"}
                           alt="profile photo" width={32} height={32}

@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useFormik } from 'formik';
 import { registrationSchema } from '../validationSchema/registrationSchema';
 import { baseUrl } from '../utils/helper';
+import Cookies from 'js-cookie';
 
 export default function Register() {
     const [formData, setFormData] = useState(null);
@@ -39,7 +40,12 @@ export default function Register() {
         console.log(formData);
         if (formData !== null) {
             try {
-                axios.post(`${baseUrl}/register`, formData)
+                axios.post(`${baseUrl}/users/register`, formData, {
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${Cookies.get('accessToken')}`,
+                    }
+                })
                     .then((data) => {
                         console.log(data);
                         setError('registration successful!');
@@ -50,29 +56,11 @@ export default function Register() {
                     });
 
                 // upload image to the cloudinary
-                // uploadImage();
             } catch (error) {
                 console.log(error);
             }
         }
-    }, [formData])
-
-
-    const [imageSelected, setImageSelected] = useState("")
-    const uploadImage = () => {
-        const formData = new FormData();
-        formData.append('file', imageSelected);
-        formData.append('upload_preset', "j5quhwqi");
-        console.log(imageSelected);
-
-        axios.post('https://api.cloudinary.com/v1_1/domlldpib/image/upload', formData)
-            .then(response => {
-                console.log(response)
-            })
-            .catch(error => {
-                console.log(error);
-            })
-    }
+    }, [formData, navigate])
 
     return (
         <div className='flex justify-center h-[100vh]'>
@@ -131,9 +119,9 @@ export default function Register() {
                     }
 
                 </div>
-                <input type="file" name="profilePhoto" id="profilePhoto" onChange={(event) => {
+                {/* <input type="file" name="profilePhoto" id="profilePhoto" onChange={(event) => {
                     setImageSelected(event.target.files[0]);
-                }} />
+                }} /> */}
                 <button className='bg-orange-500 text-white font-semibold text-lg py-2 rounded-sm' type='submit'>Register</button>
                 <div className="text-center">Already have account <Link className='text-blue-500 font-semibold' to={"/login"}>Login</Link></div>
             </form>

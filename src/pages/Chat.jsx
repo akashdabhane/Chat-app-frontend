@@ -26,8 +26,8 @@ export default function Chat({ socket }) {
     const [chatMessageList, setChatMessageList] = useState([]);
     const [users, setUsers] = useState([]);
     const [userData, setUserData] = useState([]);
-    // const [isTyping, setIsTyping] = useState(false);
-    // const [isActive, setIsActive] = useState(false);
+    const [isUserTyping, setIsUserTyping] = useState(false);
+    const [isUserActive, setIsUserActive] = useState(false);
     const [chatInfo, setChatInfo] = useState({});
     const [roomName, setRoomName] = useState("");
     const searchBox = useRef(null);
@@ -68,12 +68,13 @@ export default function Chat({ socket }) {
             setUserData([...userData, data]);
         });
 
+        const userName = Cookies.get('name')
+        const userId = Cookies.get('userId');
         socket.on('connect', () => {
-            // setIsActive(true);
+            socket.emit('send-active-flag', { userName, userId });
 
             socket.on('disconnect', () => {
-                // setIsActive(false);
-                // clearInterval(intervalId);
+                socket.emit('send-inactive-flag', { userName, userId });
             });
         });
     }, [socket, chatMessageList, userData])
@@ -142,16 +143,28 @@ export default function Chat({ socket }) {
 
     const handleSearchClick = async (inputText) => {
         try {
-            const user = await axios.get(`${baseUrl}/users/search?inputText=${inputText}`, {
+            // users could be zero(not found anything), one or more if inputText is email then we one user 
+            // and if inputText is simple text then app will search by username and then return list of users
+            const users = await axios.get(`${baseUrl}/users/search?inputText=${inputText}`, {
                 headers: {
                     Authorization: `Bearer ${Cookies.get("accessToken")}`
                 },
                 withCredentials: true
             })
 
-            console.log(user);
+            console.log(users.data.data);
+            setUsers(users.data.data)
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    const handleInputChange = async (inputText) => {
+        console.log('inside handleInputChange', inputText);
+        if (inputText === "") {
+            setIsUserTyping(false);
+        } else {
+            setIsUserTyping(true);
         }
     }
 
@@ -195,9 +208,9 @@ export default function Chat({ socket }) {
                             :
                             (
                                 <>
-                                    <TopUserBar userData={userData} chatInfo={chatInfo} setChatInfo={setChatInfo} setShowChatProfile={setShowChatProfile} />
+                                    <TopUserBar userData={userData} chatInfo={chatInfo} setChatInfo={setChatInfo} setShowChatProfile={setShowChatProfile} socket={socket} />
                                     <ScrollToBottom className="showMessages h-[90%] w-[100%] overflow-x-hidden flex flex-col pb-2">
-                                        <ChatWindow chatMessageList={chatMessageList} chatInfo={chatInfo} />
+                                        <ChatWindow chatMessageList={chatMessageList} chatInfo={chatInfo} socket={socket} isUserTyping={isUserTyping} roomName={roomName} />
                                     </ScrollToBottom>
                                     <div className="inputs flex items-center border-t-2 bg-slate-700 border-gray-800 space-x-1 p-1 pr-4 lg:rounded-br-2xl">
                                         <label className='px-4 p-2 cursor-pointer hover:bg-slate-900 rounded-md' htmlFor="emoji"><BsEmojiSmile /></label>
@@ -205,7 +218,10 @@ export default function Chat({ socket }) {
                                         {/* <Picker/> */}
                                         <label className='px-4 p-2 cursor-pointer hover:bg-slate-900 rounded-md' htmlFor="file"><AiFillFileAdd /></label>
                                         <input className='hidden' type="file" name="file" id="file" />
-                                        <input className='w-full p-2 py-1 text-lg rounded text-black outline-none border-none' type="text" placeholder='type here...' value={message} onKeyDown={(event) => event.key === "Enter" && handleSendClick()} onChange={(e) => setMessage(e.target.value)} />
+                                        <input className='w-full p-2 py-1 text-lg rounded text-black outline-none border-none' type="text" placeholder='type here...'
+                                            value={message} onKeyDown={(event) => event.key === "Enter" && handleSendClick()} onChange={(e) => setMessage(e.target.value)}
+                                            onInput={(e) => handleInputChange(e.target.value)}
+                                        />
                                         <BiSend className='text-4xl bg-green-500 p-1 rounded cursor-pointer' onClick={handleSendClick} />
                                     </div>
                                 </>
