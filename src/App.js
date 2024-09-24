@@ -6,7 +6,7 @@ import Chat from "./pages/Chat";
 import { AuthProvider } from "./context/Context";
 import ProtectedRoute from "./protectedRoutes/ProtectedRoute";
 import PageNotFound from './pages/PageNotFound';
-const socket = io("https://chatwithmi.vercel.app", {
+const socket = io("https://chatappbackend-kkuy.onrender.com", {
   withCredentials: true,
 });
 
