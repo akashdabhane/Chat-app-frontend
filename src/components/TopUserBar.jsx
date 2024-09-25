@@ -13,11 +13,16 @@ export default function TopUserBar({ userData, chatInfo, setShowChatProfile, soc
     useEffect(() => {
         if (!chatInfo?.isGroupChat) {
             const secondUser = (obj) => {
-                return obj.participants.find(item => item._id !== Cookies.get('userId'));
+                return obj?.participants?.find(item => item._id !== Cookies.get('userId'));
             }
 
-            const { _id } = secondUser(chatInfo);
-            const secondUserId = _id;
+            let secondUserId;
+            if (chatInfo?.participants) {
+                const { _id } = secondUser(chatInfo);
+                secondUserId = _id;
+            } else {
+                secondUserId = chatInfo?._id;
+            }
 
             axios.get(`${baseUrl}/users/${secondUserId}`, {
                 withCredentials: true,
@@ -33,7 +38,7 @@ export default function TopUserBar({ userData, chatInfo, setShowChatProfile, soc
                     console.log(error)
                 })
         }
-    }, [chatInfo])
+    }, [])
 
     socket.on("receive-active-flag", (data) => {
         console.log(`${data.userName} is active`);
@@ -49,9 +54,9 @@ export default function TopUserBar({ userData, chatInfo, setShowChatProfile, soc
         <div>
             <div className="flex items-center justify-between p-2 pr-10 cursor-pointer bg-slate-700 lg:rounded-tr-2xl">
                 <div className="space-x-2 flex items-center" onClick={() => setShowChatProfile(true)}>
-                    <img className='rounded-[50%] w-10 h-10' src={chatInfo.profileImage || chatInfo.isGroupChat ? "https://media.istockphoto.com/id/1158561473/vector/three-persons-icon-black-vector.jpg?s=612x612&w=0&k=20&c=UvL4Nvz9nL4zi5RdjAabosuFer98suMTA-FheZ2KLlQ=" : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s"} alt="profileImg" />
-                    <div className='leading-5'>
-                        <div className="flex items-start space-x-1 h-9">
+                    <img className='rounded-[50%] w-10 h-10' src={chatInfo?.profileImage || (chatInfo?.isGroupChat ? "https://media.istockphoto.com/id/1158561473/vector/three-persons-icon-black-vector.jpg?s=612x612&w=0&k=20&c=UvL4Nvz9nL4zi5RdjAabosuFer98suMTA-FheZ2KLlQ=" : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s")} alt="profileImg" />
+                    <div className='leading-5 h-9'>
+                        <div className="flex items-start space-x-1 ">
                             {
                                 chatInfo?.isGroupChat ?
                                     <span>{chatInfo && chatInfo.name}</span>
@@ -60,7 +65,7 @@ export default function TopUserBar({ userData, chatInfo, setShowChatProfile, soc
                             }
                         </div>
                         {
-                            activeUser && (
+                            (activeUser && !chatInfo?.isGroupChat) && (
                                 <div className='flex items-center space-x-1'>
                                     <span className={`${userData.isActive ? 'hidden' : "block w-2 h-2 bg-green-500 rounded-[50%]"} `}></span>
                                     <span className='text-gray-300 text-xs'>Active</span>

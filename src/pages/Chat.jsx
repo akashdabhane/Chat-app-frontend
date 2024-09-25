@@ -37,6 +37,7 @@ export default function Chat({ socket }) {
 
     // use effects 
     useEffect(() => {
+        console.log(Cookies.get("accessToken"))
         axios.get(`${baseUrl}/chats/get-connected-chats`, {
             headers: {
                 Authorization: `Bearer ${Cookies.get("accessToken")}`
@@ -48,7 +49,6 @@ export default function Chat({ socket }) {
                 setUsers(data.data.data);
             })
             .catch(error => {
-                alert('Error occured', error.message);
                 console.log(error)
             })
             .finally(() => {
@@ -174,7 +174,10 @@ export default function Chat({ socket }) {
             <div className='lg:mx-[10%] md:mx-[1%] md:pt-8 md:pb-8 flex h-[93vh] md:h-[97vh] text-white'>
                 <div className="chats md:w-[40%] lg:w-[36%] hidden md:block bg-slate-700 lg:rounded-l-2xl">
                     <div className="flex items-center p-3 justify-between border-b-2 border-slate-500">
-                        <input className='w-full px-2 p-1 text-md outline-none border-none bg-slate-600 rounded' type="text" name="searchUser" id="searchUser" placeholder='search here...' ref={searchBox} />
+                        <input className='w-full px-2 p-1 text-md outline-none border-none bg-slate-600 rounded'
+                            type="text" name="searchUser" id="searchUser" placeholder='search here...' ref={searchBox}
+    
+                        />
                         <span className='text-lg flex items-center px-2 space-x-2 '>
                             <BiSearchAlt2 className='w-full cursor-pointer' onClick={() => {
                                 searchBox.current.value === "" ?
@@ -232,7 +235,7 @@ export default function Chat({ socket }) {
                     showUserProfile && <UserProfilePopup closeProfilePopup={() => setShowUserProfile(false)} />
                 }
                 {
-                    showChatProfile && <ChatProfilePopup closeChatProfilePopup={() => setShowChatProfile(false)} chatInfo={chatInfo} />
+                    showChatProfile && <ChatProfilePopup closeChatProfilePopup={() => setShowChatProfile(false)} chatInfo={chatInfo} setChatInfo={setChatInfo} />
                 }
             </div >
         </>

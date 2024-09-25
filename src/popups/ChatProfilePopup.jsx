@@ -9,7 +9,7 @@ import { MdAddLink } from "react-icons/md";
 import { MdPersonAddAlt1 } from "react-icons/md";
 
 
-function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo }) {
+function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo, setChatInfo }) {
   const [isLoading, setIsLoading] = useState(true);
   const [otherUser, setOtherUser] = useState({});
   const [groupMembers, setGroupMembers] = useState([]);
@@ -105,6 +105,36 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo }) {
       })
   }
 
+  const handleProfileFileInput = async (file) => {
+    if (file) {
+      console.log("Selected file: " + file);
+      console.log('name: ' + file.name)
+      try {
+        // Create a FormData object to properly send the file
+        const formData = new FormData();
+        formData.append("profileImage", file);
+
+        const response = await axios.patch(`${baseUrl}/groups/update-group-profile-image/${chatInfo._id}`, formData, {
+          withCredentials: true,
+          headers: {
+            'Authorization': `Bearer ${Cookies.get('accessToken')}`
+          }
+        })
+        console.log(response.data)
+        setChatInfo(response.data.data.user);
+      } catch (error) {
+        console.log(error);
+        // setError(error);
+      }
+    } else {
+      console.log("No file selected.")
+    }
+  }
+
+  const handleAddMemberClick = async () => {
+
+  }
+
   return (
     <div className='fixed inset-0 bg-slate-600 lg:rounded-br-2xl bacckdrop-blur-sm flex flex-col justify-between md:pt-4 md:px-4 md:pb-10 lg:mx-[31.3%] md:mx-[1%] md:mt-[5.5rem] md:mb-80 h-max md:h-max md:w-[40%] lg:w-[25%]'
       onBlurCapture={closeChatProfilePopup}>
@@ -114,13 +144,19 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo }) {
       <div className="p-4">
         <main className='py-4 border-b-[1px] border-gray-800 space-y-4'>
           <div className="flex justify-center">
-            <img className={`block rounded-full cursor-pointer text-center`}
-              src={otherUser?.profileImage || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s"}
+            <img className={`block rounded-full cursor-pointer text-center h-36 w-36`}
+              src={otherUser?.profileImage || chatInfo?.profileImage || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s"}
               alt="profile photo" width={100} height={100}
-            // onMouseEnter={() => setHoverCSS("")}
-            // onMouseLeave={() => setHoverCSS("")}
             />
-
+            {
+              chatInfo?.admin?.includes(Cookies.get('userId')) &&
+              <>
+                <input type="file" name="profileImage" id="profileImage" className='hidden' onChange={(e) => handleProfileFileInput(e.target.files[0])} />
+                <label htmlFor="profileImage" className='relative -bottom-20 right-12'>
+                  <MdOutlineEdit htmlFor="profileImage" className='p-2 h-12 w-12 bg-slate-600 rounded-full cursor-pointer' />
+                </label>
+              </>
+            }
           </div>
           {
             chatInfo.isGroupChat &&
@@ -136,7 +172,7 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo }) {
               <div className="">
                 <h3 className='text-xl font-semibold mb-4 '>Group Members:</h3>
                 <ul className=''>
-                  <li className='flex items-center space-x-2 border-b border-t p-2 cursor-pointer'>
+                  <li className='flex items-center space-x-2 border-b border-t p-2 cursor-pointer' onClick={handleAddMemberClick}>
                     <MdPersonAddAlt1 className='text-xl' />
                     <span>Add member</span>
                   </li>

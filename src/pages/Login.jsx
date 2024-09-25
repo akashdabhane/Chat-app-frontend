@@ -46,11 +46,11 @@ export default function Login() {
             console.log(response.data.data)
             if (response.status === 200) {
                 setError('login successful!');
-                Cookies.set('accessToken', response.data.data.accessToken); // set token in cookies
-                Cookies.set('refreshToken', response.data.data.refreshToken); // set token in cookies
-                Cookies.set('name', response.data.data.user.name); // set username in cookies
-                Cookies.set('userId', response.data.data.user._id);
-                Cookies.set("isAuthenticated", true);
+                Cookies.set('accessToken', response.data.data.accessToken, { expires: 1 }); // set token in cookies
+                Cookies.set('refreshToken', response.data.data.refreshToken, { expires: 1 }); // set token in cookies
+                Cookies.set('name', response.data.data.user.name, { expires: 1 }); // set username in cookies
+                Cookies.set('userId', response.data.data.user._id, { expires: 1 });
+                Cookies.set("isAuthenticated", true, { expires: 1 });
                 setIsAuthenticated(true);
                 navigate("/");
             } else {
