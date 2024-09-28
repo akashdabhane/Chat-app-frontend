@@ -27,7 +27,6 @@ export default function Login() {
         validateOnChange: true,
         validateOnBlur: false,
         onSubmit: (values, action) => {
-            console.log(values)
             handleLogin(values);    // function to handle login 
 
             // to get rid of all the values after submitting the form
@@ -43,7 +42,7 @@ export default function Login() {
                     'Authorization': `Bearer ${Cookies.get('accessToken')}`,
                 }
             })
-            console.log(response.data.data)
+
             if (response.status === 200) {
                 setError('login successful!');
                 Cookies.set('accessToken', response.data.data.accessToken, { expires: 1 }); // set token in cookies

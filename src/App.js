@@ -1,16 +1,29 @@
-import io from 'socket.io-client';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Chat from "./pages/Chat";
-import { AuthProvider } from "./context/Context";
+import { AuthProvider, useAuth } from "./context/Context";
 import ProtectedRoute from "./protectedRoutes/ProtectedRoute";
 import PageNotFound from './pages/PageNotFound';
-const socket = io("https://chatappbackend-kkuy.onrender.com", {
-  withCredentials: true,
-});
+import { useEffect, useState } from "react";
+import LeftPanel from "./components/LeftPanel";
+import RightSideMainChatPanel from "./components/RightSideMainChatPanel";
+
 
 function App() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth <= 768); // Adjust as per your mobile breakpoint
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize); // Add resize listener
+    
+    // Cleanup listener on component unmount
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   return (
     <div className="App bg-slate-800 w-[100vw] h-[100vh]">
@@ -22,7 +35,12 @@ function App() {
             <Route path='*' element={<PageNotFound />} />
             <Route path="/" element={
               <ProtectedRoute>
-                <Chat socket={socket} />
+                {isMobile ? <LeftPanel /> : <Chat />}
+              </ProtectedRoute>
+            } />
+            <Route path="/chat" element={
+              <ProtectedRoute>
+                {isMobile ? <RightSideMainChatPanel /> : <Chat />}
               </ProtectedRoute>
             } />
           </Routes>
@@ -33,5 +51,3 @@ function App() {
 }
 
 export default App;
-
-

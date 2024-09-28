@@ -27,7 +27,6 @@ export default function Register() {
         validateOnBlur: false,
         // By disabling validation onChange and onBlur formik will validate on submit.
         onSubmit: (values, action) => {
-            console.log(values);
             setFormData(values);
 
             // to get rid of all the values after submitting the form
@@ -37,7 +36,6 @@ export default function Register() {
 
 
     useEffect(() => {
-        console.log(formData);
         if (formData !== null) {
             try {
                 axios.post(`${baseUrl}/users/register`, formData, {
@@ -47,7 +45,6 @@ export default function Register() {
                     }
                 })
                     .then((data) => {
-                        console.log(data);
                         setError('registration successful!');
                         navigate("/login");
                     })

@@ -31,7 +31,6 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo, setCha
         }
       })
         .then(response => {
-          console.log(response.data.data)
           setOtherUser(response.data.data);
         })
         .catch(error => {
@@ -52,7 +51,6 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo, setCha
         withCredentials: true,
       })
         .then((response) => {
-          console.log(response.data.data.participants)
           setGroupMembers(response.data.data.participants);
         })
         .catch((error) => {
@@ -107,8 +105,6 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo, setCha
 
   const handleProfileFileInput = async (file) => {
     if (file) {
-      console.log("Selected file: " + file);
-      console.log('name: ' + file.name)
       try {
         // Create a FormData object to properly send the file
         const formData = new FormData();
@@ -120,7 +116,6 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo, setCha
             'Authorization': `Bearer ${Cookies.get('accessToken')}`
           }
         })
-        console.log(response.data)
         setChatInfo(response.data.data.user);
       } catch (error) {
         console.log(error);

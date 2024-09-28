@@ -11,7 +11,6 @@ function UserProfilePopup({ closeProfilePopup }) {
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate()
-    const [hoverCSS, setHoverCSS] = useState("");
 
     useEffect(() => {
         axios.get(`${baseUrl}/users/${Cookies.get("userId")}`, {
@@ -21,7 +20,6 @@ function UserProfilePopup({ closeProfilePopup }) {
             }
         })
             .then((response) => {
-                console.log(response.data.data)
                 setUserData(response.data.data);
             })
             .catch((error) => {
@@ -45,8 +43,6 @@ function UserProfilePopup({ closeProfilePopup }) {
 
     const handleProfileFileInput = async (file) => {
         if (file) {
-            console.log("Selected file: " + file);
-            console.log('name: ' + file.name)
             try {
                 // Create a FormData object to properly send the file
                 const formData = new FormData();
@@ -58,7 +54,7 @@ function UserProfilePopup({ closeProfilePopup }) {
                         'Authorization': `Bearer ${Cookies.get('accessToken')}`
                     }
                 })
-                console.log(response.data)
+
                 setUserData(response.data.data.user);
             } catch (error) {
                 console.log(error);

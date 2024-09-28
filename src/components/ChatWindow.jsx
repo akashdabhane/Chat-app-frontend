@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie'
 import TypingIndicator from './TypingIndicator';
+import axios from 'axios';
+import { baseUrl } from '../utils/helper';
+import { useAuth } from '../context/Context';
 
-export default function ChatWindow({ chatMessageList, chatInfo, socket, isUserTyping, roomName }) {
-  console.log(chatMessageList);
+export default function ChatWindow({ chatInfo, isUserTyping, roomName, setRoomName, chatMessageList, setChatMessageList }) {
+  const [userData, setUserData] = useState([]);
   const [otherUserTyping, setOtherUserTyping] = useState(null);
+  const { socket } = useAuth();
+  let previousDate = "";
 
   const extractFirstName = (fullName) => {
     // Split the full name into an array of words
@@ -17,8 +22,6 @@ export default function ChatWindow({ chatMessageList, chatInfo, socket, isUserTy
       return null;
     }
   };
-
-  let previousDate = "";
 
   useEffect(() => {
     if (isUserTyping) {
@@ -34,15 +37,53 @@ export default function ChatWindow({ chatMessageList, chatInfo, socket, isUserTy
 
   useEffect(() => {
     socket.on("receive-typing-flag", (data) => {
-      console.log(`${data.userName} is typing...`);
       setOtherUserTyping(data);
     })
 
     socket.on("receive-typing-stop-flag", (data) => {
-      console.log(`${data.userName} is stop typing...`);
       setOtherUserTyping(null);
     })
   }, [socket])
+
+
+  useEffect(() => {
+    socket.on("receive_message", (data) => {
+      setChatMessageList([...chatMessageList, data.messageData]);
+    });
+
+    socket.on("receive_userdata", (data) => {
+      setUserData([...userData, data]);
+    });
+
+    const userName = Cookies.get('name')
+    const userId = Cookies.get('userId');
+    socket.on('connect', () => {
+      socket.emit('send-active-flag', { userName, userId });
+
+      socket.on('disconnect', () => {
+        socket.emit('send-inactive-flag', { userName, userId });
+      });
+    });
+  }, [socket, chatMessageList, userData])
+
+  useEffect(() => {
+    if (Object.keys(chatInfo).length > 0) {
+      setRoomName(chatInfo._id);
+
+      axios.get(`${baseUrl}/chats/get-messages-list/${chatInfo._id}`, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("accessToken")}`
+        },
+        withCredentials: true
+      })
+        .then((response) => {
+          setChatMessageList(response.data.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+    }
+  }, [chatInfo]);
 
 
   return (
@@ -50,7 +91,6 @@ export default function ChatWindow({ chatMessageList, chatInfo, socket, isUserTy
       {
         chatMessageList.map((item, index) => {
           const currentDate = new Date(item.createdAt || Date.now()).toUTCString().slice(0, 16); // Extract the date part
-
           const showDate = currentDate !== previousDate; // Compare with the previous date
 
           // Update previousDate to the current date for the next iteration

@@ -1,14 +1,13 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
-import { FcVideoCall } from 'react-icons/fc';
 import { baseUrl } from '../utils/helper';
 import Cookies from 'js-cookie';
+import { useAuth } from '../context/Context';
 
-export default function TopUserBar({ userData, chatInfo, setShowChatProfile, socket }) {
+export default function TopUserBar({ userData, chatInfo, setShowChatProfile }) {
     const [otherUser, setOtherUser] = useState({});
     const [activeUser, setActiveUser] = useState(null);
-    console.log(chatInfo)
-
+    const { socket } = useAuth();
 
     useEffect(() => {
         if (!chatInfo?.isGroupChat) {
@@ -31,22 +30,19 @@ export default function TopUserBar({ userData, chatInfo, setShowChatProfile, soc
                 }
             })
                 .then(response => {
-                    console.log(response.data.data)
                     setOtherUser(response.data.data);
                 })
                 .catch(error => {
                     console.log(error)
                 })
         }
-    }, [])
+    }, [chatInfo])
 
     socket.on("receive-active-flag", (data) => {
-        console.log(`${data.userName} is active`);
         setActiveUser(true);
     });
 
     socket.on("receive-inactive-flag", (data) => {
-        console.log(`${data.userName} is inactive`);
         setActiveUser(false);
     });
 
@@ -74,9 +70,6 @@ export default function TopUserBar({ userData, chatInfo, setShowChatProfile, soc
                         }
                     </div>
                 </div>
-                <span className='text-2xl text-white'>
-                    <FcVideoCall className='cursor-pointer ' />
-                </span>
             </div>
         </div>
     )
