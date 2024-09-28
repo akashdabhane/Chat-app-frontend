@@ -90,11 +90,11 @@ export default function LeftPanel({ handleChatOnClick, setShowUserProfile }) {
                       <div className="space-x-2 flex w-60">
                         {
                           item?.isGroupChat ?
-                            <img className='rounded-[50%] w-10 h-10' src={item?.profileImage || "https://media.istockphoto.com/id/1158561473/vector/three-persons-icon-black-vector.jpg?s=612x612&w=0&k=20&c=UvL4Nvz9nL4zi5RdjAabosuFer98suMTA-FheZ2KLlQ="} alt="profileImg" />
+                            <img className='rounded-[50%] w-10 h-10' src={item?.profileImage} alt="profileImg" />
                             :
                             (
                               item?.participants ?
-                                <img className='rounded-[50%] w-10 h-10' src={(item?.participants[1]?.name === Cookies.get('name') ? item?.participants[0]?.profileImage : item?.participants[1]?.profileImage) || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s"} alt="profileImg" />
+                                <img className='rounded-[50%] w-10 h-10' src={(item?.participants[1]?.name === Cookies.get('name') ? item?.participants[0]?.profileImage : item?.participants[1]?.profileImage)} alt="profileImg" />
                                 :
                                 <img className='rounded-[50%] w-10 h-10' src={item?.profileImage} alt="profileImage" />
                             )

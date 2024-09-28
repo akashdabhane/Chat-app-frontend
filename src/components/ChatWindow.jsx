@@ -4,6 +4,7 @@ import TypingIndicator from './TypingIndicator';
 import axios from 'axios';
 import { baseUrl } from '../utils/helper';
 import { useAuth } from '../context/Context';
+import Skeleton from 'react-loading-skeleton';
 
 export default function ChatWindow({ chatInfo, isUserTyping, roomName, setRoomName, chatMessageList, setChatMessageList }) {
   const [userData, setUserData] = useState([]);
@@ -100,7 +101,7 @@ export default function ChatWindow({ chatInfo, isUserTyping, roomName, setRoomNa
             <React.Fragment key={index}>
               {
                 showDate &&
-                <div className="text-center">
+                <div className="text-center my-1">
                   <span className='bg-slate-700 px-2 p-1 rounded '>
                     {currentDate}
                   </span>
@@ -121,7 +122,7 @@ export default function ChatWindow({ chatInfo, isUserTyping, roomName, setRoomNa
                       </span>
                     )
                   }
-                  {item.message}
+                  {item.message || <Skeleton />}
                 </div>
                 <div className='text-[.60rem] leading-3 float-right '>
                   {

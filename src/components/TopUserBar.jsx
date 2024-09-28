@@ -50,7 +50,7 @@ export default function TopUserBar({ userData, chatInfo, setShowChatProfile }) {
         <div>
             <div className="flex items-center justify-between p-2 pr-10 cursor-pointer bg-slate-700 lg:rounded-tr-2xl">
                 <div className="space-x-2 flex items-center" onClick={() => setShowChatProfile(true)}>
-                    <img className='rounded-[50%] w-10 h-10' src={chatInfo?.profileImage || (chatInfo?.isGroupChat ? "https://media.istockphoto.com/id/1158561473/vector/three-persons-icon-black-vector.jpg?s=612x612&w=0&k=20&c=UvL4Nvz9nL4zi5RdjAabosuFer98suMTA-FheZ2KLlQ=" : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s")} alt="profileImg" />
+                    <img className='rounded-[50%] w-10 h-10' src={chatInfo?.profileImage || (!chatInfo?.isGroupChat && "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s")} alt="profileImg" />
                     <div className='leading-5 h-9'>
                         <div className="flex items-start space-x-1 ">
                             {

@@ -74,7 +74,7 @@ function UserProfilePopup({ closeProfilePopup }) {
             <div className="p-4">
                 <main className='py-4 border-b-[1px] border-gray-800 space-y-4 relative'>
                     <img className={`block hover:opacity-30 rounded-full cursor-pointer h-36 w-36`}
-                        src={userData?.profileImage || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s"}
+                        src={userData?.profileImage}
                         alt="profile photo" width={100} height={100}
                     // onMouseEnter={() => setHoverCSS("")}
                     // onMouseLeave={() => setHoverCSS("")}

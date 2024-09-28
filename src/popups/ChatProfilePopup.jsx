@@ -140,7 +140,7 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo, setCha
         <main className='py-4 border-b-[1px] border-gray-800 space-y-4'>
           <div className="flex justify-center">
             <img className={`block rounded-full cursor-pointer text-center h-36 w-36`}
-              src={otherUser?.profileImage || chatInfo?.profileImage || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s"}
+              src={otherUser?.profileImage || chatInfo?.profileImage}
               alt="profile photo" width={100} height={100}
             />
             {
@@ -179,7 +179,7 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo, setCha
                     groupMembers?.map((item, index) => (
                       <li key={index} className={`flex items-center space-x-2 border-b p-2`}>
                         <img className={`rounded-full cursor-pointer text-center w-[32px] h-[32px] mr-4`}
-                          src={item?.profileImage || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVTtlOwG_6l93Lo3NcGZcQpGx4LXNwa3lF5A&s"}
+                          src={item?.profileImage}
                           alt="profile photo" width={32} height={32}
                         />
                         <p>{item?.name}</p>
