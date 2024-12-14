@@ -14,7 +14,7 @@ export default function Chat() {
     const [showUserProfile, setShowUserProfile] = useState(false);
     const [showChatProfile, setShowChatProfile] = useState(false);
     const [showCreateChatPopup, setShowCreateChatPopup] = useState(false);
-    const { socket } = useAuth();
+    const { socket, loggedInUser } = useAuth();
 
 
     useEffect(() => {
@@ -34,6 +34,17 @@ export default function Chat() {
     }
 
 
+    useEffect(() => {
+        const userName = loggedInUser.name;
+        const userId = loggedInUser._id;
+        socket.emit('send-active-flag', { userName, userId });
+
+        socket.on('disconnect', () => {
+            socket.emit('send-inactive-flag', { userName, userId });
+        });
+    }, [])
+
+    
     return (
         <>
             <div className='lg:mx-[10%] md:mx-[1%] md:pt-8 md:pb-8 flex h-[93vh] md:h-[97vh] text-white'>

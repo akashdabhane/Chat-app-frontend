@@ -6,7 +6,7 @@ import { useAuth } from '../context/Context';
 
 export default function TopUserBar({ setShowChatProfile }) {
     const [otherUser, setOtherUser] = useState({});
-    const [activeUser, setActiveUser] = useState(null);
+    const [isActive, setIsActive] = useState(null);
     const { socket, chatInfo, loggedInUser } = useAuth();
 
     useEffect(() => {
@@ -39,13 +39,16 @@ export default function TopUserBar({ setShowChatProfile }) {
         }
     }, [chatInfo, loggedInUser]);
 
-    socket.on("receive-active-flag", (data) => {
-        setActiveUser(true);
-    });
+    useEffect(() => {
+        socket.on("receive-active-flag", (data) => {
+            setIsActive(true);
+        });
+    
+        socket.on("receive-inactive-flag", (data) => {
+            setIsActive(false);
+        });
+    }, [socket, isActive])
 
-    socket.on("receive-inactive-flag", (data) => {
-        setActiveUser(false);
-    });
 
     return (
         <div>
@@ -61,14 +64,14 @@ export default function TopUserBar({ setShowChatProfile }) {
                                     <span>{otherUser?.name}</span>
                             }
                         </div>
-                        {/* {
-                            (activeUser && !chatInfo?.isGroupChat) && (
+                        {
+                            (isActive && !chatInfo?.isGroupChat) && (
                                 <div className='flex items-center space-x-1'>
-                                    <span className={`${userData.isActive ? 'hidden' : "block w-2 h-2 bg-green-500 rounded-[50%]"} `}></span>
+                                    <span className={`${isActive ? "block w-2 h-2 bg-green-500 rounded-[50%]" : "hidden" } `}></span>
                                     <span className='text-gray-300 text-xs'>Active</span>
                                 </div>
                             )
-                        } */}
+                        }
                     </div>
                 </div>
             </div>

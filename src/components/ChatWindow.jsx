@@ -53,16 +53,6 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
     socket.on("receive_userdata", (data) => {
       setUserData([...userData, data]);
     });
-
-    const userName = loggedInUser.name;
-    const userId = loggedInUser._id;
-    socket.on('connect', () => {
-      socket.emit('send-active-flag', { userName, userId });
-
-      socket.on('disconnect', () => {
-        socket.emit('send-inactive-flag', { userName, userId });
-      });
-    });
   }, [socket, chatMessageList, userData])
 
   useEffect(() => {
@@ -134,7 +124,7 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
           })
         )
       }
-      {/* {
+      {
         otherUserTyping !== null &&
         (
           <div className={`w-fit text-black p-2 py-1 mx-4 my-1 rounded-lg rounded-tl-[0%] float-left bg-green-300 self-start`}>
@@ -148,7 +138,7 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
             </div>
           </div>
         )
-      } */}
+      }
     </div>
   )
 }
