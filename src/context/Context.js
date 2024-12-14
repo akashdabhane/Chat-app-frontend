@@ -1,16 +1,22 @@
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useState } from "react";
 import io from 'socket.io-client';
+
+const serverUrl = 'http://localhost:9000';
+// const serverUrl = 'https://chatappbackend-kkuy.onrender.com';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const socket = io("https://chatappbackend-kkuy.onrender.com", {
+    const [loggedInUser, setLoggedInUser] = useState(null);
+    const [chatInfo, setChatInfo] = useState(null);
+    const socket = io(serverUrl, {
         withCredentials: true,
     });
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated, socket}}>
+        <AuthContext.Provider
+            value={{ loggedInUser, setLoggedInUser, chatInfo, setChatInfo, socket }}
+        >
             {children}
         </AuthContext.Provider>
     );

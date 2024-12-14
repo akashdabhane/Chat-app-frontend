@@ -1,15 +1,15 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/Context';
-import axios from 'axios'
-import { useFormik } from 'formik'
+import axios from 'axios';
+import { useFormik } from 'formik';
 import { loginSchema } from '../validationSchema/loginSchema';
 import { baseUrl } from '../utils/helper';
 import Cookies from 'js-cookie';
 
 export default function Login() {
     const [error, setError] = useState('');
-    const { setIsAuthenticated } = useAuth();
+    const { setLoggedInUser } = useAuth();
     const navigate = useNavigate();
 
 
@@ -36,26 +36,20 @@ export default function Login() {
 
     const handleLogin = async (formData) => {
         try {
-            const response = await axios.post(`${baseUrl}/users/login`, formData, {
-                withCredentials: true,
-                headers: {
-                    'Authorization': `Bearer ${Cookies.get('accessToken')}`,
-                }
-            })
-
-            if (response.status === 200) {
+            const response = await axios.post(`${baseUrl}/users/login`, formData);
+            console.log(response);
+            if (response?.status === 200) {
                 setError('login successful!');
                 Cookies.set('accessToken', response.data.data.accessToken, { expires: 1 }); // set token in cookies
                 Cookies.set('refreshToken', response.data.data.refreshToken, { expires: 1 }); // set token in cookies
-                Cookies.set('name', response.data.data.user.name, { expires: 1 }); // set username in cookies
-                Cookies.set('userId', response.data.data.user._id, { expires: 1 });
-                Cookies.set("isAuthenticated", true, { expires: 1 });
-                setIsAuthenticated(true);
+        
+                setLoggedInUser(response.data.data.user)
                 navigate("/");
             } else {
                 setError('Invalid email or password');
             }
         } catch (error) {
+            console.log(error)
             setError(error.message || 'Error occured while logging in');
         }
     }
@@ -90,7 +84,7 @@ export default function Login() {
                     }
                 </div>
                 <button className='bg-orange-500 text-white font-semibold text-lg py-2 rounded-sm' type='submit'>Login</button>
-                <div className="text-center">Not have account <Link className='text-blue-500 font-semibold' to={"/register"}>Register</Link></div>
+                <div className="text-center">Not have account? <Link className='text-blue-500 font-semibold' to={"/register"}>Register</Link></div>
             </form>
         </div>
     )

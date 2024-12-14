@@ -1,11 +1,39 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/Context"; // Assuming you have AuthProvider
+import { useAuth } from "../context/Context";
 import Cookies from "js-cookie";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { baseUrl } from "../utils/helper";
 
 const ProtectedRoute = ({ children }) => {
-    const { isAuthenticated } = useAuth();
+    const { loggedInUser, setLoggedInUser } = useAuth();
+    const [isLoading, setIsLoading] = useState(true);
 
-    return isAuthenticated || Cookies.get("isAuthenticated") ? children : <Navigate to="/login" />;
+    useEffect(() => {
+        axios.get(`${baseUrl}/users/logged-in-user`,
+            {
+                withCredentials: true,
+                headers: {
+                    'Authorization': `Bearer ${Cookies.get('accessToken')}`,
+                }
+            })
+            .then((response) => {
+                setLoggedInUser(response.data.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            })
+    }, [])
+
+    // Show a loading spinner or nothing while fetching user data
+    if (isLoading) {
+        return <div className="text-center font-bold text-white text-4xl p-10">Loading...</div>; // Or a proper spinner
+    }
+
+    return loggedInUser !== null ? children : <Navigate to="/login" />;
 };
 
 export default ProtectedRoute;

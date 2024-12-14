@@ -1,24 +1,26 @@
 // this component is responsible for showing information about the chat (other user information like userprofilePopup) or group information
-import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { baseUrl } from '../utils/helper';
 import { IoClose } from "react-icons/io5";
 import { MdOutlineEdit } from "react-icons/md";
 import Cookies from 'js-cookie';
 import { MdAddLink } from "react-icons/md";
 import { MdPersonAddAlt1 } from "react-icons/md";
+import { useAuth } from '../context/Context';
 
 
-function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo, setChatInfo }) {
+function ChatProfilePopup({ closeChatProfilePopup, otherUserId }) {
   const [isLoading, setIsLoading] = useState(true);
   const [otherUser, setOtherUser] = useState({});
   const [groupMembers, setGroupMembers] = useState([]);
+  const { chatInfo, setChatInfo, loggedInUser } = useAuth();
 
   let secondUserId;
   useEffect(() => {
     if (!chatInfo.isGroupChat) {
       const secondUser = (obj) => {
-        return obj.participants.find(item => item._id !== Cookies.get('userId'));
+        return obj.participants.find(item => item._id !== loggedInUser._id);
       }
 
       const { _id } = secondUser(chatInfo);
@@ -66,7 +68,7 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo, setCha
     axios.patch(`${baseUrl}/groups/remove-participant`,
       {
         chatId: chatInfo._id,
-        userId: Cookies.get('userId'),
+        userId: loggedInUser._id,
       },
       {
         headers: {
@@ -144,7 +146,7 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId, chatInfo, setCha
               alt="profile photo" width={100} height={100}
             />
             {
-              chatInfo?.admin?.includes(Cookies.get('userId')) &&
+              chatInfo?.admin?.includes(loggedInUser._id) &&
               <>
                 <input type="file" name="profileImage" id="profileImage" className='hidden' onChange={(e) => handleProfileFileInput(e.target.files[0])} />
                 <label htmlFor="profileImage" className='relative -bottom-20 right-12'>

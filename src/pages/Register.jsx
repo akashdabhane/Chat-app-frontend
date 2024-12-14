@@ -120,7 +120,7 @@ export default function Register() {
                     setImageSelected(event.target.files[0]);
                 }} /> */}
                 <button className='bg-orange-500 text-white font-semibold text-lg py-2 rounded-sm' type='submit'>Register</button>
-                <div className="text-center">Already have account <Link className='text-blue-500 font-semibold' to={"/login"}>Login</Link></div>
+                <div className="text-center">Already have account? <Link className='text-blue-500 font-semibold' to={"/login"}>Login</Link></div>
             </form>
         </div>
     )

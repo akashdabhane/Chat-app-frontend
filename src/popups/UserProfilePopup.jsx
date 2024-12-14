@@ -1,19 +1,21 @@
-import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { baseUrl } from '../utils/helper';
 import Cookies from 'js-cookie';
 import { IoClose } from "react-icons/io5";
 import { MdOutlineEdit } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/Context';
 
 function UserProfilePopup({ closeProfilePopup }) {
     const [userData, setUserData] = useState(null);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const { loggedInUser } = useAuth();
 
     useEffect(() => {
-        axios.get(`${baseUrl}/users/${Cookies.get("userId")}`, {
+        axios.get(`${baseUrl}/users/${loggedInUser._id}`, {
             withCredentials: true,
             headers: {
                 'Authorization': `Bearer ${Cookies.get('accessToken')}`,
@@ -32,11 +34,8 @@ function UserProfilePopup({ closeProfilePopup }) {
     }, [])
 
     const handleLogoutClick = () => {
-        Cookies.remove("userId");
         Cookies.remove("accessToken");
         Cookies.remove("refreshToken");
-        Cookies.remove("name");
-        Cookies.remove("isAuthenticated");
 
         navigate("/login");
     }

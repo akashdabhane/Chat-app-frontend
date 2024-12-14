@@ -7,30 +7,27 @@ import ScrollToBottom from 'react-scroll-to-bottom';
 import ChatWindow from '../components/ChatWindow';
 import TopUserBar from '../components/TopUserBar';
 import EmptyChatPanel from '../components/EmptyChatPanel';
-import Cookies from 'js-cookie'
 
 
-function RightSideMainChatPanel({ chatInfo, setChatInfo, userData, setShowChatProfile, isUserTyping, roomName, setRoomName, handleInputChange }) {
+function RightSideMainChatPanel({ setShowChatProfile, isUserTyping, roomName, handleInputChange }) {
     const [chatMessageList, setChatMessageList] = useState([]);
     const [message, setMessage] = useState("");
-    const { socket } = useAuth();
+    const { socket, chatInfo, loggedInUser } = useAuth();
 
     const handleSendClick = () => {
+        console.log(message);
         if (message !== "") {
             const messageData = {
-                author: Cookies.get('userId'),
+                author: loggedInUser._id,
                 message: message,
                 room: roomName,
                 time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
             }
 
-            if (roomName !== "") {
-                socket.emit("send_message", { roomName, messageData });
-            } else {
-                alert('failed to send message');
-            }
-
             setChatMessageList([...chatMessageList, messageData]);
+
+            socket.emit("send_message", { roomName, messageData });
+
             setMessage("");
         }
     }
@@ -38,19 +35,21 @@ function RightSideMainChatPanel({ chatInfo, setChatInfo, userData, setShowChatPr
     return (
         <div className="room bg-slate-500 w-full flex flex-col justify-between lg:rounded-r-2xl">
             {
-                Object.keys(chatInfo).length === 0 ?
+                chatInfo === null
+                    ?
                     <EmptyChatPanel />
                     :
                     (
                         <>
-                            <TopUserBar userData={userData} chatInfo={chatInfo} setChatInfo={setChatInfo} setShowChatProfile={setShowChatProfile} socket={socket} />
+                            <TopUserBar setShowChatProfile={setShowChatProfile} />
                             <ScrollToBottom className="showMessages h-[90%] w-[100%] overflow-x-hidden flex flex-col pb-2">
-                                <ChatWindow chatMessageList={chatMessageList} setChatMessageList={setChatMessageList} chatInfo={chatInfo} socket={socket} isUserTyping={isUserTyping} roomName={roomName} setRoomName={setRoomName} />
+                                <ChatWindow chatMessageList={chatMessageList} setChatMessageList={setChatMessageList}
+                                    isUserTyping={isUserTyping} roomName={roomName}
+                                />
                             </ScrollToBottom>
                             <div className="inputs flex items-center border-t-2 bg-slate-700 border-gray-800 space-x-1 p-1 pr-4 lg:rounded-br-2xl">
                                 <label className='px-4 p-2 cursor-pointer hover:bg-slate-900 rounded-md' htmlFor="emoji"><BsEmojiSmile /></label>
                                 <input className='hidden' type="file" name="emoji" id="emoji" />
-                                {/* <Picker/> */}
                                 <label className='px-4 p-2 cursor-pointer hover:bg-slate-900 rounded-md' htmlFor="file"><AiFillFileAdd /></label>
                                 <input className='hidden' type="file" name="file" id="file" />
                                 <input className='w-full p-2 py-1 text-lg rounded text-black outline-none border-none' type="text" placeholder='type here...'
