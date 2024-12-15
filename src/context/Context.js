@@ -9,13 +9,14 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [chatInfo, setChatInfo] = useState(null);
+    const [newMessageReceived, setNewMessageReceived] = useState(false);
     const socket = io(serverUrl, {
         withCredentials: true,
     });
 
     return (
         <AuthContext.Provider
-            value={{ loggedInUser, setLoggedInUser, chatInfo, setChatInfo, socket }}
+            value={{ loggedInUser, setLoggedInUser, chatInfo, setChatInfo, socket, newMessageReceived, setNewMessageReceived }}
         >
             {children}
         </AuthContext.Provider>

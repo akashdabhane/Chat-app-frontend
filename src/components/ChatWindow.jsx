@@ -2,27 +2,16 @@ import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import TypingIndicator from './TypingIndicator';
 import axios from 'axios';
-import { baseUrl } from '../utils/helper';
+import { baseUrl, extractFirstName } from '../utils/helper';
 import { useAuth } from '../context/Context';
 import Skeleton from 'react-loading-skeleton';
 
 export default function ChatWindow({ isUserTyping, roomName, chatMessageList, setChatMessageList }) {
   const [userData, setUserData] = useState([]);
   const [otherUserTyping, setOtherUserTyping] = useState(null);
-  const { socket, chatInfo, loggedInUser } = useAuth();
+  const { socket, chatInfo, loggedInUser, setNewMessageReceived } = useAuth();
   let previousDate = "";
 
-  const extractFirstName = (fullName) => {
-    // Split the full name into an array of words
-    const nameArray = fullName.split(' ');
-
-    if (nameArray.length > 0) {
-      // Get the first element of the array as the first name
-      return nameArray[0];
-    } else {
-      return null;
-    }
-  };
 
   useEffect(() => {
     const userName = loggedInUser.name;
@@ -48,16 +37,23 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
   useEffect(() => {
     socket.on("receive_message", (data) => {
       setChatMessageList([...chatMessageList, data.messageData]);
+      setNewMessageReceived(true);
     });
 
     socket.on("receive_userdata", (data) => {
       setUserData([...userData, data]);
     });
-  }, [socket, chatMessageList, userData])
+  })
 
   useEffect(() => {
+    const secondUser = (chatInfo) => {
+      return chatInfo?.participants?.find(item => item._id !== loggedInUser._id);
+    }
+
+    // otheruser id
+    const { _id } = secondUser(chatInfo);
     if (Object.keys(chatInfo).length > 0 && roomName !== "") {
-      axios.get(`${baseUrl}/chats/get-messages-list/${chatInfo._id}`, {
+      axios.get(`${baseUrl}/chats/get-messages-list/?chatId=${chatInfo._id}&otherUserId=${_id}`, {
         headers: {
           Authorization: `Bearer ${Cookies.get("accessToken")}`
         },
@@ -111,12 +107,17 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
                     }
                     {item.message || <Skeleton />}
                   </div>
-                  <div className='text-[.60rem] leading-3 float-right '>
-                    {
-                      item.time || (new Date(item.createdAt).getHours()
-                        + ":" +
-                        new Date(item.createdAt).getMinutes())
-                    }
+                  <div className='text-[.60rem] leading-3 float-right flex items-center space-x-1'>
+                    <span>
+                      {
+                        item.time || (new Date(item.createdAt).getHours()
+                          + ":" +
+                          new Date(item.createdAt).getMinutes())
+                      }
+                    </span>
+                    {/* <div className={`${(item.status === "sent" && loggedInUser._id === item.author._id) ? "w-[0.40rem] h-[0.40rem] rounded-full border-2 bg-gray-400" : "hidden"}`}></div>
+                    <div className={`${(item.status === "delievered" && loggedInUser._id === item.author._id) ? "w-[0.40rem] h-[0.40rem] rounded-full bg-blue-500" : "hidden"}`}></div>
+                    <div className={`${(item.status === "read" && loggedInUser._id === item.author._id) ? "w-[0.40rem] h-[0.40rem] rounded-full bg-pink-500" : "hidden"}`}></div> */}
                   </div>
                 </div>
               </React.Fragment>

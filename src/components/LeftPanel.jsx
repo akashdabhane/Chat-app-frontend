@@ -14,7 +14,7 @@ export default function LeftPanel({ setRoomName, showUserProfile, setShowUserPro
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const searchBox = useRef(null);
-  const { setChatInfo } = useAuth();
+  const { setChatInfo, newMessageReceived, setNewMessageReceived } = useAuth();
 
   // use effects 
   useEffect(() => {
@@ -33,27 +33,28 @@ export default function LeftPanel({ setRoomName, showUserProfile, setShowUserPro
       })
       .finally(() => {
         setIsLoading(false);
+        setNewMessageReceived(false);
       })
-  }, []);
+  }, [newMessageReceived]);
 
 
   // search for users ------------ // search for users by email, their name, group name in their contact (created chat)
   const handleSearchClick = async (inputText) => {
-  //   try {
-  //     // users could be zero(not found anything), one or more if inputText is email then we one user 
-  //     // and if inputText is simple text then app will search by username and then return list of users
-  //     const users = await axios.get(`${baseUrl}/users/search?inputText=${inputText}`, {
-  //       headers: {
-  //         Authorization: `Bearer ${Cookies.get("accessToken")}`
-  //       },
-  //       withCredentials: true
-  //     })
+    //   try {
+    //     // users could be zero(not found anything), one or more if inputText is email then we one user 
+    //     // and if inputText is simple text then app will search by username and then return list of users
+    //     const users = await axios.get(`${baseUrl}/users/search?inputText=${inputText}`, {
+    //       headers: {
+    //         Authorization: `Bearer ${Cookies.get("accessToken")}`
+    //       },
+    //       withCredentials: true
+    //     })
 
-  //     console.log(users.data.data)
-  //     setUsers(users.data.data)
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
+    //     console.log(users.data.data)
+    //     setUsers(users.data.data)
+    //   } catch (error) {
+    //     console.log(error)
+    //   }
   }
 
 
