@@ -27,6 +27,7 @@ export default function LeftPanel({ setRoomName, showUserProfile, setShowUserPro
       })
       .then((data) => {
         setUsers(data.data.data);
+        console.log(data.data.data);
       })
       .catch(error => {
         console.log(error)

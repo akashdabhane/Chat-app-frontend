@@ -1,8 +1,8 @@
 import { createContext, useContext, useState } from "react";
 import io from 'socket.io-client';
 
-const serverUrl = 'http://localhost:9000';
-// const serverUrl = 'https://chatappbackend-kkuy.onrender.com';
+// const serverUrl = 'http://localhost:9000';
+const serverUrl = 'https://chatappbackend-kkuy.onrender.com';
 
 const AuthContext = createContext();
 
