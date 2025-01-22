@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { baseUrl } from "../utils/helper";
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 const ProtectedRoute = ({ children }) => {
     const { loggedInUser, setLoggedInUser } = useAuth();
