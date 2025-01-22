@@ -30,7 +30,7 @@ const ProtectedRoute = ({ children }) => {
 
     // Show a loading spinner or nothing while fetching user data
     if (isLoading) {
-        return <div className="text-center font-bold text-white text-4xl p-10">Loading...</div>; // Or a proper spinner
+        return <LoadingSpinner loading={isLoading} /> // Or a proper spinner
     }
 
     return loggedInUser !== null ? children : <Navigate to="/login" />;
