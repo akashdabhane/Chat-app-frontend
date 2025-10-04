@@ -28,3 +28,14 @@
         animation-delay: 0.3s;
     }
 }
+
+/* In your global CSS file, e.g., index.css or a dedicated custom CSS file */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    transition: background-color 9999s ease-in-out 0s;
+    /* A long transition to effectively hide the change */
+    -webkit-text-fill-color: white !important;
+    /* Ensures text color remains consistent */
+}

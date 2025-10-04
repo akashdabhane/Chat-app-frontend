@@ -9,7 +9,6 @@ import { MdAddLink } from "react-icons/md";
 import { MdPersonAddAlt1 } from "react-icons/md";
 import { useAuth } from '../context/Context';
 
-
 function ChatProfilePopup({ closeChatProfilePopup, otherUserId }) {
   const [isLoading, setIsLoading] = useState(true);
   const [otherUser, setOtherUser] = useState({});
@@ -132,97 +131,105 @@ function ChatProfilePopup({ closeChatProfilePopup, otherUserId }) {
 
   }
 
+  if (!chatInfo) return null;
+
+  const profileImage = chatInfo.isGroupChat ? chatInfo.profileImage : otherUser.profileImage;
+  const displayName = chatInfo.isGroupChat ? chatInfo.name : otherUser.name;
+  const displayInitial = displayName ? displayName.charAt(0).toUpperCase() : '?';
+  const isAdmin = chatInfo.isGroupChat && chatInfo.admin?.includes(loggedInUser._id);
+
   return (
-    <div className='fixed inset-0 bg-slate-600 lg:rounded-br-2xl bacckdrop-blur-sm flex flex-col justify-between md:pt-4 md:px-4 md:pb-10 lg:mx-[31.3%] md:mx-[1%] md:mt-[5.5rem] md:mb-80 h-max md:h-max md:w-[40%] lg:w-[25%]'
-      onBlurCapture={closeChatProfilePopup}>
-      <div className="flex justify-end">
-        <IoClose className='text-2xl text-black cursor-pointer' onClick={closeChatProfilePopup} />
-      </div>
-      <div className="p-4">
-        <main className='py-4 border-b-[1px] border-gray-800 space-y-4'>
-          <div className="flex justify-center">
-            <img className={`block rounded-full cursor-pointer text-center h-36 w-36`}
-              src={otherUser?.profileImage || chatInfo?.profileImage}
-              alt="profile photo" width={100} height={100}
-            />
-            {
-              chatInfo?.admin?.includes(loggedInUser._id) &&
-              <>
-                <input type="file" name="profileImage" id="profileImage" className='hidden' onChange={(e) => handleProfileFileInput(e.target.files[0])} />
-                <label htmlFor="profileImage" className='relative -bottom-20 right-12'>
-                  <MdOutlineEdit htmlFor="profileImage" className='p-2 h-12 w-12 bg-slate-600 rounded-full cursor-pointer' />
-                </label>
-              </>
-            }
-          </div>
-          {
-            chatInfo.isGroupChat &&
-            <>
-              <div className="flex justify-between items-center">
-                <p>Created on</p>
-                <p>{new Date(chatInfo?.createdAt).toUTCString().slice(0, 16)}</p>
-              </div>
-              <div>
-                <span className='block text-gray-300'>Description</span>
-                <p>{chatInfo?.description}</p>
-              </div>
-              <div className="">
-                <h3 className='text-xl font-semibold mb-4 '>Group Members:</h3>
-                <ul className=''>
-                  <li className='flex items-center space-x-2 border-b border-t p-2 cursor-pointer' onClick={handleAddMemberClick}>
-                    <MdPersonAddAlt1 className='text-xl' />
-                    <span>Add member</span>
-                  </li>
-                  <li className='flex items-center space-x-2 border-b p-2 cursor-pointer'>
-                    <MdAddLink className='text-xl' />
-                    <span>Invite to group via link</span>
-                  </li>
-                  {
-                    groupMembers?.map((item, index) => (
-                      <li key={index} className={`flex items-center space-x-2 border-b p-2`}>
-                        <img className={`rounded-full cursor-pointer text-center w-[32px] h-[32px] mr-4`}
-                          src={item?.profileImage}
-                          alt="profile photo" width={32} height={32}
-                        />
-                        <p>{item?.name}</p>
-                      </li>
-                    ))
-                  }
-                </ul>
-              </div>
-            </>
-          }
-          {
-            !chatInfo.isGroupChat &&
-            <>
-              <div className="flex justify-between items-center">
-                <input className='bg-transparent outline-slate-800'
-                  type="text" value={otherUser?.name} contentEditable="false" />
-              </div>
-              <p>
-                <span className='block text-gray-300'>email</span>
-                <span>{otherUser?.email}</span>
-              </p>
-            </>
-          }
-        </main>
+    <div className='fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
+      <div className='bg-gray-800 text-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col max-h-[90vh]'>
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-700 flex-shrink-0">
+          <h2 className="text-xl font-bold">{chatInfo.isGroupChat ? "Group Info" : "Contact Info"}</h2>
+          <button onClick={closeChatProfilePopup} className="p-2 rounded-full hover:bg-gray-700 transition-colors">
+            <IoClose className='text-xl' />
+          </button>
+        </div>
 
-        {
-          chatInfo.isGroupChat ?
-            <button className="bg-red-500 text-black rounded px-2 p-1 my-6 text-lg font-semibold w-24"
-              onClick={handleExitGroupClick}>
-              Exit
-            </button>
-            :
-            <button className="bg-red-500 text-black rounded px-2 p-1 my-6 text-lg font-semibold w-24"
-              onClick={handleBlockUserClick}>
-              Block
-            </button>
-        }
-      </div>
+        {/* Body */}
+        <div className="flex-grow overflow-y-auto p-6 space-y-6">
+          {isLoading ? (
+            <div className="text-center text-gray-400">Loading...</div>
+          ) : (
+            <>
+              {/* Profile Image Section */}
+              <div className="flex flex-col items-center space-y-2">
+                <div className="relative">
+                  {profileImage ? (
+                    <img className="w-32 h-32 rounded-full object-cover" src={profileImage} alt="Profile" />
+                  ) : (
+                    <div className="w-32 h-32 rounded-full bg-cyan-600 flex items-center justify-center text-white font-bold text-5xl">
+                      {displayInitial}
+                    </div>
+                  )}
+                  {isAdmin && (
+                    <>
+                      <input type="file" accept="image/*" id="profileImageUpload" className='hidden' onChange={(e) => handleProfileFileInput(e.target.files[0])} />
+                      <label htmlFor="profileImageUpload" className='absolute bottom-0 right-0 bg-gray-700 p-2 rounded-full cursor-pointer hover:bg-gray-600 border-2 border-gray-800'>
+                        <MdOutlineEdit />
+                      </label>
+                    </>
+                  )}
+                </div>
+                <h3 className="text-2xl font-bold">{displayName}</h3>
+              </div>
 
+              {/* Details Section */}
+              {chatInfo.isGroupChat ? (
+                // Group Info
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-400">Description</p>
+                    <p>{chatInfo.description || "No description."}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400">Created On</p>
+                    <p>{new Date(chatInfo.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <div>
+                    <h4 className="font-bold mb-2">{groupMembers.length} Members</h4>
+                    <ul className="space-y-1 max-h-48 overflow-y-auto pr-2">
+                      {isAdmin && (<>
+                        <li className="flex items-center space-x-3 p-2 rounded-lg cursor-pointer hover:bg-gray-700"><MdPersonAddAlt1 /><span>Add member</span></li>
+                        <li className="flex items-center space-x-3 p-2 rounded-lg cursor-pointer hover:bg-gray-700"><MdAddLink /><span>Invite via link</span></li>
+                      </>)}
+                      {groupMembers.map(member => (
+                        <li key={member._id} className="flex items-center space-x-3 p-2">
+                          <img className="w-8 h-8 rounded-full" src={member.profileImage} alt={member.name} />
+                          <span>{member.name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                // Single User Info
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-400">Email</p>
+                    <p>{otherUser.email}</p>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Footer Actions */}
+        <div className="p-4 border-t border-gray-700 flex-shrink-0">
+          <button
+            onClick={chatInfo.isGroupChat ? handleExitGroupClick : handleBlockUserClick}
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+          >
+            {chatInfo.isGroupChat ? "Exit Group" : "Block User"}
+          </button>
+        </div>
+      </div>
     </div>
-  )
+  );
 }
 
-export default ChatProfilePopup
+export default ChatProfilePopup;

@@ -14,55 +14,74 @@ function RightSideMainChatPanel({ setShowChatProfile, isUserTyping, roomName, ha
     const [message, setMessage] = useState("");
     const { socket, chatInfo, loggedInUser } = useAuth();
 
+    // Your logic for receiving messages would go in a useEffect, e.g.:
+    // useEffect(() => {
+    //   socket.on("receive_message", (data) => {
+    //     setChatMessageList((list) => [...list, data.messageData]);
+    //   });
+    // }, [socket]);
+
     const handleSendClick = () => {
-        console.log(message);
-        if (message !== "") {
+        if (message.trim() !== "") {
             const messageData = {
                 author: loggedInUser._id,
                 message: message,
                 room: roomName,
-                time: new Date(Date.now()).getHours() + ":" + new Date(Date.now()).getMinutes(),
-            }
-
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
+            };
             setChatMessageList([...chatMessageList, messageData]);
-
             socket.emit("send_message", { roomName, messageData });
-
             setMessage("");
         }
-    }
+    };
 
     return (
-        <div className="room bg-slate-500 w-full flex flex-col justify-between lg:rounded-r-2xl">
-            {
-                chatInfo === null
-                    ?
-                    <EmptyChatPanel />
-                    :
-                    (
-                        <>
-                            <TopUserBar setShowChatProfile={setShowChatProfile} />
-                            <ScrollToBottom className="showMessages h-[90%] w-[100%] overflow-x-hidden flex flex-col pb-2">
-                                <ChatWindow chatMessageList={chatMessageList} setChatMessageList={setChatMessageList}
-                                    isUserTyping={isUserTyping} roomName={roomName}
-                                />
-                            </ScrollToBottom>
-                            <div className="inputs flex items-center border-t-2 bg-slate-700 border-gray-800 space-x-1 p-1 pr-4 lg:rounded-br-2xl">
-                                <label className='px-4 p-2 cursor-pointer hover:bg-slate-900 rounded-md' htmlFor="emoji"><BsEmojiSmile /></label>
-                                <input className='hidden' type="file" name="emoji" id="emoji" />
-                                <label className='px-4 p-2 cursor-pointer hover:bg-slate-900 rounded-md' htmlFor="file"><AiFillFileAdd /></label>
-                                <input className='hidden' type="file" name="file" id="file" />
-                                <input className='w-full p-2 py-1 text-lg rounded text-black outline-none border-none' type="text" placeholder='type here...'
-                                    value={message} onKeyDown={(event) => event.key === "Enter" && handleSendClick()} onChange={(e) => setMessage(e.target.value)}
-                                    onInput={(e) => handleInputChange(e.target.value)}
-                                />
-                                <BiSend className='text-4xl bg-green-500 p-1 rounded cursor-pointer' onClick={handleSendClick} />
-                            </div>
-                        </>
-                    )
-            }
+        <div className="bg-gray-900 w-full flex flex-col justify-between lg:rounded-r-2xl border-l-2 border-gray-700 h-full">
+            {chatInfo === null ? (
+                <EmptyChatPanel />
+            ) : (
+                <>
+                    <TopUserBar setShowChatProfile={setShowChatProfile} />
+                    
+                    <ScrollToBottom className="flex-grow w-full overflow-y-auto overflow-x-hidden">
+                        <ChatWindow 
+                            chatMessageList={chatMessageList} 
+                            setChatMessageList={setChatMessageList}
+                            isUserTyping={isUserTyping} 
+                            roomName={roomName}
+                        />
+                    </ScrollToBottom>
+                    
+                    <div className="flex items-center bg-gray-800 p-2 border-t-2 border-gray-700">
+                        <button className='p-3 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-colors'>
+                            <BsEmojiSmile className="text-xl"/>
+                        </button>
+                        <button className='p-3 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-colors'>
+                            <AiFillFileAdd className="text-xl"/>
+                        </button>
+
+                        <input 
+                            className='w-full p-3 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-cyan-500 mx-2 transition-all' 
+                            type="text" 
+                            placeholder='Type a message...'
+                            value={message} 
+                            onChange={(e) => setMessage(e.target.value)}
+                            onKeyDown={(event) => event.key === "Enter" && handleSendClick()}
+                            // onInput={(e) => handleInputChange(e.target.value)} // Assuming this is for a 'typing...' indicator
+                        />
+                        
+                        <button 
+                            className='p-3 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-cyan-600 text-white hover:bg-cyan-500' 
+                            onClick={handleSendClick}
+                            disabled={!message.trim()}
+                        >
+                            <BiSend className='text-xl' />
+                        </button>
+                    </div>
+                </>
+            )}
         </div>
-    )
+    );
 }
 
 export default RightSideMainChatPanel

@@ -70,76 +70,59 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
 
 
   return (
-    <div className="showMessages py-4 px-2 h-[70vh] flex flex-col">
-      {
-        chatMessageList.length > 0 && (
-          chatMessageList.map((item, index) => {
-            const currentDate = new Date(item.createdAt || Date.now()).toUTCString().slice(0, 16); // Extract the date part
-            const showDate = currentDate !== previousDate; // Compare with the previous date
+    <div className="p-4 md:py-1 md:p-6 space-y-1">
+      {chatMessageList.map((item, index) => {
+        const messageDate = new Date(item.createdAt || Date.now());
 
-            // Update previousDate to the current date for the next iteration
-            previousDate = currentDate;
+        // Format the date for the separator (e.g., "October 3, 2025")
+        const currentDate = messageDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const showDate = currentDate !== previousDate;
+        previousDate = currentDate;
 
-            return (
-              <React.Fragment key={index}>
-                {
-                  showDate &&
-                  <div className="text-center my-1">
-                    <span className='bg-slate-700 px-2 p-1 rounded '>
-                      {currentDate}
-                    </span>
-                  </div>
-                }
-                <div className={`w-fit text-black p-2 py-1 mx-4 my-1 rounded-lg ${(loggedInUser._id === item.author._id || loggedInUser._id === item.author) ?
-                  " rounded-tr-[0%] float-right bg-blue-300 self-end" :
-                  "rounded-tl-[0%] float-left bg-green-300 self-start"}`}>
-                  <div className='max-w-xl'>
-                    {
-                      chatInfo.isGroupChat && (
-                        <span className='text-sm text-pink-500'>
-                          {
-                            (loggedInUser._id === item.author._id || loggedInUser._id === item.author)
-                              ? "You"
-                              : extractFirstName(item.author.name) || extractFirstName(item.author)
-                          }:
-                        </span>
-                      )
-                    }
-                    {item.message || <Skeleton />}
-                  </div>
-                  <div className='text-[.60rem] leading-3 float-right flex items-center space-x-1'>
-                    <span>
-                      {
-                        item.time || (new Date(item.createdAt).getHours()
-                          + ":" +
-                          new Date(item.createdAt).getMinutes())
-                      }
-                    </span>
-                    {/* <div className={`${(item.status === "sent" && loggedInUser._id === item.author._id) ? "w-[0.40rem] h-[0.40rem] rounded-full border-2 bg-gray-400" : "hidden"}`}></div>
-                    <div className={`${(item.status === "delievered" && loggedInUser._id === item.author._id) ? "w-[0.40rem] h-[0.40rem] rounded-full bg-blue-500" : "hidden"}`}></div>
-                    <div className={`${(item.status === "read" && loggedInUser._id === item.author._id) ? "w-[0.40rem] h-[0.40rem] rounded-full bg-pink-500" : "hidden"}`}></div> */}
-                  </div>
+        const isMyMessage = (item.author?._id || item.author) === loggedInUser._id;
+
+        return (
+          <React.Fragment key={item._id || index}>
+            {/* Date Separator */}
+            {showDate && (
+              <div className="text-center my-3">
+                <span className='bg-gray-800 text-gray-400 text-xs font-semibold px-3 py-1 rounded-full'>{currentDate}</span>
+              </div>
+            )}
+
+            {/* Message Bubble */}
+            <div className={`flex items-end gap-2 ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-xs md:max-w-md lg:max-w-lg px-3 py-2 rounded-xl flex flex-col ${isMyMessage ? 'bg-cyan-600 text-white rounded-br-sm' : 'bg-gray-700 text-white rounded-bl-sm'}`}>
+
+                {/* Sender's Name in a Group Chat */}
+                {chatInfo.isGroupChat && !isMyMessage && (
+                  <p className='text-xs text-cyan-300 font-bold mb-1'>
+                    {extractFirstName(item.author?.name)}
+                  </p>
+                )}
+
+                {/* Message Content */}
+                <p className="text-sm break-words">{item.message}</p>
+
+                {/* Timestamp */}
+                <div className='text-xs text-gray-300 mt-1 self-end'>
+                  {messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                 </div>
-              </React.Fragment>
-            )
-          })
-        )
-      }
-      {
-        otherUserTyping !== null &&
-        (
-          <div className={`w-fit text-black p-2 py-1 mx-4 my-1 rounded-lg rounded-tl-[0%] float-left bg-green-300 self-start`}>
-            <div className='flex items-center space-x-2 py-2'>
-              {
-                chatInfo.isGroupChat && (
-                  <span className='text-sm text-pink-500'>{extractFirstName(otherUserTyping?.userName)}: </span>
-                )
-              }
-              <TypingIndicator />
+              </div>
             </div>
+          </React.Fragment>
+        );
+      })}
+
+      {/* Typing Indicator */}
+      {otherUserTyping && (
+        <div className="flex items-end gap-2">
+          <div className="bg-gray-700 rounded-xl rounded-bl-sm inline-block">
+            {chatInfo.isGroupChat && <p className='text-xs text-cyan-300 font-bold px-3 pt-2'>{extractFirstName(otherUserTyping?.userName)}</p>}
+            <TypingIndicator />
           </div>
-        )
-      }
+        </div>
+      )}
     </div>
   )
 }

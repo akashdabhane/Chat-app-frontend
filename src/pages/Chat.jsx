@@ -16,6 +16,8 @@ export default function Chat() {
     const [showCreateChatPopup, setShowCreateChatPopup] = useState(false);
     const { socket, loggedInUser } = useAuth();
 
+    // This state is added to manage the view on mobile devices
+    const [selectedChat, setSelectedChat] = useState(null);
 
     useEffect(() => {
         if (roomName !== "") {
@@ -44,38 +46,40 @@ export default function Chat() {
         });
     }, [])
 
-    
+
     return (
-        <>
-            <div className='lg:mx-[10%] md:mx-[1%] md:pt-8 md:pb-8 flex h-[93vh] md:h-[97vh] text-white'>
+        <div className='w-screen h-screen bg-gray-950 text-white flex overflow-hidden px-6 p-4'>
+            {/* Left Panel: Visible on desktop, conditionally visible on mobile */}
+            {/* <div className={`flex-shrink-0 w-full h-full ${selectedChat ? 'hidden' : 'flex'} md:flex flex-col`}> */}
+                {/* md:w-[350px] lg:w-[380px] xl:w-[420px] */}
                 <LeftPanel
-                    setShowUserProfile={setShowUserProfile} showUserProfile={showUserProfile}
-                    showCreateChatPopup={showCreateChatPopup} setShowCreateChatPopup={setShowCreateChatPopup}
                     setRoomName={setRoomName}
+                    setShowUserProfile={setShowUserProfile}
+                    showUserProfile={showUserProfile}
+                    setShowCreateChatPopup={setShowCreateChatPopup}
+                    showCreateChatPopup={showCreateChatPopup}
+                    setSelectedChat={setSelectedChat} // Pass handler to update view
                 />
+            {/* </div> */}
+
+            {/* Right Panel: Hidden on mobile until a chat is selected */}
+            <div className={`flex-grow h-full ${selectedChat ? 'flex' : 'hidden'} md:flex flex-col`}>
                 <RightSideMainChatPanel
-                    setShowChatProfile={setShowChatProfile} socket={socket} isUserTyping={isUserTyping}
-                    roomName={roomName} setRoomName={setRoomName} handleInputChange={handleInputChange}
+                    setShowChatProfile={setShowChatProfile}
+                    socket={socket}
+                    isUserTyping={isUserTyping}
+                    roomName={roomName}
+                    setRoomName={setRoomName}
+                    handleInputChange={handleInputChange}
+                    onBack={() => setSelectedChat(null)} // Handler to go back on mobile
                 />
-                {
-                    showUserProfile && (
-                        <UserProfilePopup closeProfilePopup={() => setShowUserProfile(false)} />
-                    )
-                }
-                {
-                    showChatProfile && (
-                        <ChatProfilePopup closeChatProfilePopup={() => setShowChatProfile(false)} />
-                    )
-                }
-                {
-                    showCreateChatPopup && (
-                        <CreateChatPopup closeCreateChatPopup={() => setShowCreateChatPopup(false)}
-                            roomName={roomName} setRoomName={setRoomName}
-                        />
-                    )
-                }
             </div>
-        </>
+
+            {/* Popups (Modals) */}
+            {showUserProfile && <UserProfilePopup closeProfilePopup={() => setShowUserProfile(false)} />}
+            {showChatProfile && <ChatProfilePopup closeChatProfilePopup={() => setShowChatProfile(false)} />}
+            {showCreateChatPopup && <CreateChatPopup closeCreateChatPopup={() => setShowCreateChatPopup(false)} roomName={roomName} setRoomName={setRoomName} />}
+        </div>
     )
 }
 

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { baseUrl } from '../utils/helper';
 import Cookies from 'js-cookie';
 import { IoClose } from "react-icons/io5";
@@ -13,6 +13,7 @@ function UserProfilePopup({ closeProfilePopup }) {
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
     const { loggedInUser } = useAuth();
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         axios.get(`${baseUrl}/users/${loggedInUser._id}`, {
@@ -64,44 +65,83 @@ function UserProfilePopup({ closeProfilePopup }) {
         }
     }
 
-    return (
-        <div className='fixed inset-0 bg-slate-600 lg:rounded-l-2xl bacckdrop-blur-sm flex flex-col justify-between md:pt-8 md:px-4 md:pb-10 lg:mx-[10%] md:mx-[1%] md:mt-8 md:mb-80 h-max md:h-max md:w-[40%] lg:w-[21.2%]'
-            onBlurCapture={closeProfilePopup}>
-            <div className="flex justify-end">
-                <IoClose className='text-2xl text-black cursor-pointer' onClick={closeProfilePopup} />
-            </div>
-            <div className="p-4">
-                <main className='py-4 border-b-[1px] border-gray-800 space-y-4 relative'>
-                    <img className={`block hover:opacity-30 rounded-full cursor-pointer h-36 w-36`}
-                        src={userData?.profileImage}
-                        alt="profile photo" width={100} height={100}
-                    // onMouseEnter={() => setHoverCSS("")}
-                    // onMouseLeave={() => setHoverCSS("")}
-                    // onClick={handleProfileImageClick}
-                    />
-                    <input type="file" name="profileImage" id="profileImage" className='hidden' onChange={(e) => handleProfileFileInput(e.target.files[0])} />
-                    <label htmlFor="profileImage" className='relative bottom-16 -right-24 '>
-                        <MdOutlineEdit htmlFor="profileImage" className='p-2 h-12 w-12 bg-slate-600 rounded-full cursor-pointer' />
-                    </label>
-                    <div className="flex justify-between items-center">
-                        <input className='bg-transparent outline-slate-800'
-                            type="text" value={userData?.name} contentEditable="false" />
-                        <MdOutlineEdit className='p-2 h-8 w-8 hover:bg-slate-600' />
+    const renderContent = () => {
+        if (isLoading) {
+            return (
+                <div className="flex justify-center items-center h-full min-h-[300px]">
+                    Loading...
+                </div>
+            );
+        }
+
+        if (error || !userData) {
+            return (
+                <div className="text-center text-red-400 py-10 px-4">
+                    <p className="font-semibold">Something went wrong</p>
+                    <p className="text-sm">{error || "Could not retrieve user data."}</p>
+                </div>
+            );
+        }
+
+        return (
+            <>
+                <div className="p-6 flex flex-col items-center">
+                    <div className="relative group mb-4">
+                        <img
+                            className="h-32 w-32 rounded-full object-cover border-4 border-gray-600 group-hover:opacity-70 transition-opacity"
+                            src={userData.profileImage || `https://placehold.co/128x128/1F2937/FFFFFF?text=${userData.name.charAt(0)}`}
+                            alt="Profile"
+                        />
+                        <label
+                            htmlFor="profileImage"
+                            className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity"
+                        >
+                            <MdOutlineEdit className="text-3xl" />
+                        </label>
+                        <input
+                            type="file"
+                            name="profileImage"
+                            id="profileImage"
+                            className='hidden'
+                            accept="image/*"
+                            onChange={(e) => handleProfileFileInput(e.target.files[0])}
+                            ref={fileInputRef}
+                        />
                     </div>
-                    <p>
-                        <span className='block text-gray-300'>email</span>
-                        <span>{userData?.email}</span>
-                    </p>
-                </main>
 
-                <button className="bg-red-500 text-black rounded px-2 p-1 my-6 text-lg font-semibold"
-                    onClick={handleLogoutClick}>
-                    Logout
-                </button>
+                    <h3 className="text-xl font-bold text-white">{userData.name}</h3>
+                    <p className="text-sm text-gray-400">{userData.email}</p>
+                </div>
+
+                <div className="p-4 bg-gray-900/50">
+                    <button
+                        className="w-full bg-red-600 text-white font-bold rounded-lg px-4 py-2.5 text-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-colors"
+                        onClick={handleLogoutClick}
+                    >
+                        Logout
+                    </button>
+                </div>
+            </>
+        );
+    };
+
+    return (
+        <div className='fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4 animate-fade-in'>
+            <div className='bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm flex flex-col overflow-hidden'>
+                <div className="flex justify-between items-center p-4 border-b border-gray-700">
+                    <h2 className='text-lg font-semibold text-gray-200'>My Profile</h2>
+                    <button
+                        onClick={closeProfilePopup}
+                        className='p-1.5 rounded-full hover:bg-gray-700 text-gray-400 hover:text-white transition-colors'
+                        aria-label="Close"
+                    >
+                        <IoClose className='text-xl' />
+                    </button>
+                </div>
+                {renderContent()}
             </div>
-
         </div>
-    )
+    );
 }
 
 export default UserProfilePopup

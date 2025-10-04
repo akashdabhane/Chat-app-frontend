@@ -5,14 +5,32 @@ import { baseUrl } from '../utils/helper';
 import Cookies from "js-cookie";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/Context';
+import { BiSearchAlt2 } from "react-icons/bi";
+
+const UserSearchResult = ({ user, onUserClick }) => (
+    <div
+        className='flex items-center p-3 hover:bg-gray-700/50 cursor-pointer rounded-lg transition-colors duration-200'
+        onClick={() => onUserClick(user._id)}
+    >
+        <img
+            src={user.profileImage || `https://placehold.co/40x40/1F2937/FFFFFF?text=${user.name.charAt(0)}`}
+            alt={user.name}
+            className='w-10 h-10 rounded-full object-cover border-2 border-gray-600'
+        />
+        <span className='ml-4 text-sm font-medium text-gray-200'>{user.name}</span>
+    </div>
+);
 
 function CreateChatPopUp({ closeCreateChatPopup, setRoomName, roomName }) {
     const [inputText, setInputText] = useState("");
     const [searchResult, setSearchResult] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
     const navigate = useNavigate();
     const { setChatInfo } = useAuth();
 
-    const handleSearchClick = () => {
+    const handleSearch = () => {
+        setIsSearching(true)
         axios.get(`${baseUrl}/users/search?inputText=${inputText}`,
             {
                 withCredentials: true,
@@ -21,11 +39,16 @@ function CreateChatPopUp({ closeCreateChatPopup, setRoomName, roomName }) {
                 }
             })
             .then(response => {
+                console.log(response.data.data)
                 setSearchResult(response.data.data);
             })
             .catch(error => {
                 console.log(error);
-            });
+            })
+            .finally(() => {
+                setHasSearched(true);
+                setIsSearching(false);
+            })
     }
 
     const handleUserClick = (otherUserId) => {
@@ -48,54 +71,66 @@ function CreateChatPopUp({ closeCreateChatPopup, setRoomName, roomName }) {
     }
 
     return (
-        <div className='fixed inset-0 bg-slate-600 lg:rounded-br-2xl bacckdrop-blur-sm flex flex-col md:pt-4 md:px-4 md:pb-10 lg:mx-[31.3%] md:mx-[1%] md:mt-[5.5rem] md:mb-80 h-max md:h-max lg:h-[60%] md:w-[40%] lg:w-[50%]'
-        // onBlurCapture={closeCreateChatPopup}
-        >
-            <div className="flex justify-between">
-                <span>Create Chat</span>
-                <IoClose className='text-2xl text-black cursor-pointer' onClick={closeCreateChatPopup} />
-            </div>
-
-            <main className='flex items-end justify-center my-2 '>
-                <div className="">
-                    <label htmlFor="search" className='text-gray-200 text-sm'>Search a user</label>
-                    <input type="email" name="search" id="search" placeholder='Enter email of other person'
-                        className='bg-transparent p-2 outline-none border rounded w-full'
-                        value={inputText} onChange={(e) => setInputText(e.target.value)}
-                    />
+        <div className='fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-50 p-4'>
+            {/* Popup Panel */}
+            <div className='bg-gray-800 text-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col'>
+                {/* Header */}
+                <div className="flex justify-between items-center p-4 border-b border-gray-700">
+                    <h2 className='text-lg font-semibold text-gray-200'>New Conversation</h2>
+                    <button
+                        onClick={closeCreateChatPopup}
+                        className='p-1.5 rounded-full hover:bg-gray-700 text-gray-400 hover:text-white transition-colors'
+                        aria-label="Close"
+                    >
+                        <IoClose className='text-xl' />
+                    </button>
                 </div>
-                <button className='bg-purple-600 rounded p-2 px-3 text-black mx-3'
-                    onClick={handleSearchClick}>
-                    Search
-                </button>
-            </main>
 
-            {
-                searchResult.length > 0 &&
-                (
-                    <div className='flex flex-col justify-center mx-20 my-4 space-y-1'>
-                        <h2 className=' text-gray-300'>Search Results</h2>
-                        {
-                            searchResult.map((user, index) => (
-                                <div key={index} className='flex items-start px-2 py-1 border-b-2 border-slate-500 hover:bg-slate-500 cursor-pointer rounded'
-                                    onClick={() => handleUserClick(user._id)}
-                                >
-                                    <img src={user.profileImage} alt={user.name} className='w-10 h-10 rounded-full' />
-                                    <span className='ml-3'>{user.name}</span>
-                                </div>
-                            ))
-                        }
-                    </div>
-                )
-                // :
-                // (
-                //     <div className='flex justify-center mx-20 my-4'>
-                //         <h2 className='text-gray-300'>No search results found</h2>
-                //     </div>
-                // )
-            }
+                {/* Search Bar */}
+                <div className="p-4">
+                    <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }}>
+                        <div className="relative">
+                            {/* <BiSearchAlt2 className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xl pointer-events-none cursor-pointer hover:bg-red-600'
+                                onClick={(e) => { e.preventDefault(); handleSearch(); }} /> */}
+                            <input
+                                type="text"
+                                placeholder='Search by name or email...'
+                                className='w-full p-2.5 pl-11 text-sm outline-none border-2 border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-cyan-500 transition-all'
+                                value={inputText}
+                                onChange={(e) => setInputText(e.target.value)}
+                                autoFocus
+                                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(); } }}
+                            />
+                        </div>
+                    </form>
+                </div>
+
+                {/* Search Results Area */}
+                <div className='overflow-y-auto flex-grow px-4 pb-4 min-h-[250px]'>
+                    {isSearching ? (
+                        <div className="flex justify-center items-center pt-10 bg-gray-800">
+                            Loading...
+                        </div>
+                    ) : hasSearched && searchResult.length > 0 ? (
+                        <div className="space-y-1">
+                            {searchResult.map((user) => (
+                                <UserSearchResult key={user._id} user={user} onUserClick={handleUserClick} />
+                            ))}
+                        </div>
+                    ) : hasSearched ? (
+                        <div className="text-center text-gray-500 pt-16">
+                            <p className="font-semibold">No users found</p>
+                            <p className="text-sm">Please check the spelling or try another search.</p>
+                        </div>
+                    ) : (
+                        <div className="text-center text-gray-500 pt-16">
+                            <p>Find friends and colleagues to begin chatting.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
-    )
+    );
 }
 
-export default CreateChatPopUp
+export default CreateChatPopUp;

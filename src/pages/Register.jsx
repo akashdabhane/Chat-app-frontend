@@ -5,11 +5,15 @@ import { useFormik } from 'formik';
 import { registrationSchema } from '../validationSchema/registrationSchema';
 import { baseUrl } from '../utils/helper';
 import Cookies from 'js-cookie';
+import { FiMail, FiEye, FiEyeOff, FiLock, FiUser, FiUserPlus } from "react-icons/fi";
 
 export default function Register() {
     const [formData, setFormData] = useState(null);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     // using formik for handling input fields
     const initialValues = {
@@ -60,68 +64,120 @@ export default function Register() {
     }, [formData, navigate])
 
     return (
-        <div className='flex justify-center h-[100vh]'>
-            <form onSubmit={formik.handleSubmit}
-                className="register w-[95%] md:w-[40%] h-[80vh] bg-[url('https://media.istockphoto.com/id/1132930101/photo/leadership-concept-with-paper-airplanes.jpg?s=612x612&w=0&k=20&c=GOzBz1_t9QscdF2F0ZfRkUghMHF6z4F8E1eFH6pCDRo=')] rounded-md flex flex-col justify-center p-10 my-10 space-y-5">
-                <p className='text-center text-red-500 text-lg font-semibold h-4'>{error}</p>
-                <h1 className='text-3xl font-bold'>Register</h1>
-                <div className="">
-                    <input className='p-2 outline-none rounded-sm w-full' type="text" name='name' placeholder='Your name'
-                        value={formik.values.name}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur} />
+        <div className="min-h-screen w-full bg-gray-900 text-white flex items-center justify-center font-sans p-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 w-full max-w-6xl mx-auto h-full lg:h-auto lg:max-h-[800px] bg-gray-800 rounded-xl shadow-2xl overflow-hidden">
 
-                    {
-                        formik.touched.name && formik.errors.name ?
-                            <p className="text-red-600">{formik.errors.name}</p>
-                            : null
-                    }
-
+                <div className="hidden lg:flex flex-col justify-center items-center p-12 bg-gradient-to-br from-cyan-500 to-blue-600 text-center">
+                    <h1 className="text-4xl font-bold mb-4">Join Our Community</h1>
+                    <p className="text-blue-100">
+                        Create an account to start connecting with people. It's fast and easy.
+                    </p>
+                    <FiUserPlus className="text-4xl text-white/20 mt-8" />
                 </div>
-                <div className="">
-                    <input className='p-2 outline-none rounded-sm w-full' type="email" name="email" placeholder='Enter Email'
-                        value={formik.values.email}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur} />
 
-                    {
-                        formik.touched.email && formik.errors.email ?
-                            <p className="text-red-600">{formik.errors.email}</p>
-                            : null
-                    }
+                <div className="p-8 md:p-12 flex flex-col justify-center">
+                    <form onSubmit={formik.handleSubmit} className="w-full space-y-6">
+                        <h2 className='text-3xl font-bold text-cyan-400 mb-2'>Create a New Account</h2>
+                        <p className="text-gray-400 mb-8">Let's get you set up.</p>
+
+                        {error && (
+                            <div className="bg-red-500/20 border border-red-500 text-red-300 px-4 py-3 rounded-lg text-center" role="alert">
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Name Input */}
+                        <div className="">
+                            <div className={`flex items-center bg-gray-700 border-2 ${formik.touched.name && formik.errors.name ? 'border-red-500' : 'border-gray-600'} rounded-lg p-3 text-white placeholder-gray-400`}>
+                                <FiUser className=" text-gray-400 w-5 h-5" />
+                                <input
+                                    className={`w-full pl-4 bg-gray-700 border-none outline-none`}
+                                    type="text" name='name' placeholder='Your Name'
+                                    value={formik.values.name}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                />
+                            </div>
+                            {formik.touched.name && formik.errors.name && (<p className="text-red-400 text-sm mt-1 ml-1">{formik.errors.name}</p>)}
+                        </div>
+
+                        {/* Email Input */}
+                        <div className="">
+                            <div className={`flex items-center bg-gray-700 border-2 ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-gray-600'} rounded-lg p-3 text-white placeholder-gray-400 `}>
+                                <FiMail className="text-gray-400 w-5 h-5" />
+                                <input
+                                    className={`w-full pl-4 bg-gray-700 border-none outline-none`}
+                                    type="email" name="email" placeholder='Email Address'
+                                    value={formik.values.email}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                />
+                            </div>
+                            {formik.touched.email && formik.errors.email && (<p className="text-red-400 text-sm mt-1 ml-1">{formik.errors.email}</p>)}
+                        </div>
+
+                        {/* Password Input */}
+                        <div className="">
+                            <div className={`flex items-center bg-gray-700 border-2 ${formik.touched.password && formik.errors.password ? 'border-red-500' : 'border-gray-600'} rounded-lg p-3 text-white placeholder-gray-400 `}>
+                                <FiLock className="text-gray-400 w-5 h-5" />
+                                <input
+                                    className={`w-full pl-4 border-none outline-none bg-gray-700`}
+                                    type={showPassword ? "text" : "password"}
+                                    name="password" placeholder='Create Password'
+                                    value={formik.values.password}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                />
+                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-gray-400 hover:text-cyan-400 transition-colors">
+                                    {showPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+                                </button>
+                            </div>
+                            {formik.touched.password && formik.errors.password && (<p className="text-red-400 text-sm mt-1 ml-1">{formik.errors.password}</p>)}
+                        </div>
+
+                        {/* Confirm Password Input */}
+                        <div className="">
+                            <div className={`flex items-center bg-gray-700 border-2 ${formik.touched.confirmPassword && formik.errors.confirmPassword ? 'border-red-500' : 'border-gray-600'} rounded-lg p-3 text-white placeholder-gray-400 `}>
+                                <FiLock className="text-gray-400 w-5 h-5" />
+                                <input
+                                    className={`w-full bg-gray-700 border-2 border-none outline-none pl-3`}
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    name="confirmPassword" placeholder='Confirm Password'
+                                    value={formik.values.confirmPassword}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                />
+                                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="text-gray-400 hover:text-cyan-400 transition-colors">
+                                    {showConfirmPassword ? <FiEyeOff className="w-5 h-5" /> : <FiEye className="w-5 h-5" />}
+                                </button>
+                            </div>
+                            {formik.touched.confirmPassword && formik.errors.confirmPassword && (<p className="text-red-400 text-sm mt-1 ml-1">{formik.errors.confirmPassword}</p>)}
+                        </div>
+
+                        <button
+                            className='w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg py-3 rounded-lg shadow-lg hover:shadow-cyan-500/50 transform hover:scale-105 transition-all duration-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed'
+                            type='submit'
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            ) : (
+                                'Create Account'
+                            )}
+                        </button>
+
+                        <div className="text-center text-gray-400">
+                            Already have an account?{' '}
+                            <Link className='text-cyan-400 font-semibold hover:underline' to={"/login"}>
+                                Login here
+                            </Link>
+                        </div>
+                    </form>
                 </div>
-                <div className="">
-                    <input className='p-2 outline-none rounded-sm w-full' type="password" name="password" autoComplete='off' placeholder='Enter Password'
-                        value={formik.values.password}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur} />
-
-                    {
-                        formik.touched.password && formik.errors.password ?
-                            <p className="text-red-600">{formik.errors.password}</p>
-                            : null
-                    }
-
-                </div>
-                <div className="">
-                    <input className='p-2 outline-none rounded-sm w-full' type="password" name="confirmPassword" autoComplete='off' id="confirmPassword" placeholder='confirm Password'
-                        value={formik.values.confirmPassword}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur} />
-
-                    {
-                        formik.touched.confirmPassword && formik.errors.confirmPassword ?
-                            <p className="text-red-600">{formik.errors.confirmPassword}</p>
-                            : null
-                    }
-
-                </div>
-                {/* <input type="file" name="profilePhoto" id="profilePhoto" onChange={(event) => {
-                    setImageSelected(event.target.files[0]);
-                }} /> */}
-                <button className='bg-orange-500 text-white font-semibold text-lg py-2 rounded-sm' type='submit'>Register</button>
-                <div className="text-center">Already have account? <Link className='text-blue-500 font-semibold' to={"/login"}>Login</Link></div>
-            </form>
+            </div>
         </div>
     )
 }
