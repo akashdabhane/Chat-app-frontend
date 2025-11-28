@@ -34,6 +34,10 @@ const ProtectedRoute = ({ children }) => {
         return <LoadingSpinner loading={isLoading} /> // Or a proper spinner
     }
 
+    if(!Cookies.get('accessToken')){
+        return <Navigate to="/login" />;
+    }
+    
     return loggedInUser !== null ? children : <Navigate to="/login" />;
 };
 
