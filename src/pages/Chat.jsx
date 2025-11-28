@@ -28,6 +28,7 @@ export default function Chat() {
 
 
     const handleInputChange = (inputText) => {
+        // 1st for text input and 2nd for file input
         if (inputText === "") {
             setIsUserTyping(false);
         } else {
@@ -46,20 +47,27 @@ export default function Chat() {
         });
     }, [])
 
+    // useEffect(() => {
+    //     const userId = loggedInUser._id;
+
+    //     // when user comes online
+    //     socket.emit("user-online", userId);
+    // }, [])
+
 
     return (
         <div className='w-screen h-screen bg-gray-950 text-white flex overflow-hidden px-6 p-4'>
             {/* Left Panel: Visible on desktop, conditionally visible on mobile */}
             {/* <div className={`flex-shrink-0 w-full h-full ${selectedChat ? 'hidden' : 'flex'} md:flex flex-col`}> */}
-                {/* md:w-[350px] lg:w-[380px] xl:w-[420px] */}
-                <LeftPanel
-                    setRoomName={setRoomName}
-                    setShowUserProfile={setShowUserProfile}
-                    showUserProfile={showUserProfile}
-                    setShowCreateChatPopup={setShowCreateChatPopup}
-                    showCreateChatPopup={showCreateChatPopup}
-                    setSelectedChat={setSelectedChat} // Pass handler to update view
-                />
+            {/* md:w-[350px] lg:w-[380px] xl:w-[420px] */}
+            <LeftPanel
+                setRoomName={setRoomName}
+                setShowUserProfile={setShowUserProfile}
+                showUserProfile={showUserProfile}
+                setShowCreateChatPopup={setShowCreateChatPopup}
+                showCreateChatPopup={showCreateChatPopup}
+                setSelectedChat={setSelectedChat} // Pass handler to update view
+            />
             {/* </div> */}
 
             {/* Right Panel: Hidden on mobile until a chat is selected */}

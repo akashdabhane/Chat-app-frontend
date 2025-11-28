@@ -1,7 +1,4 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { baseUrl } from '../utils/helper';
-import Cookies from 'js-cookie';
 import { useAuth } from '../context/Context';
 import { FiMoreVertical } from "react-icons/fi";
 
@@ -11,32 +8,8 @@ export default function TopUserBar({ setShowChatProfile }) {
     const { socket, chatInfo, loggedInUser } = useAuth();
 
     useEffect(() => {
-        const secondUser = (obj) => {
-            return obj?.participants?.find(item => item._id !== loggedInUser._id);
-        }
-
         if (!chatInfo?.isGroupChat) {
-            let secondUserId;
-            if (chatInfo?.participants) {
-                const { _id } = secondUser(chatInfo);
-                secondUserId = _id;
-            } else {
-                secondUserId = chatInfo?._id;
-            }
-
-            axios.get(`${baseUrl}/users/${secondUserId}`,
-                {
-                    withCredentials: true,
-                    headers: {
-                        'Authorization': `Bearer ${Cookies.get('accessToken')}`,
-                    }
-                })
-                .then(response => {
-                    setOtherUser(response.data.data);
-                })
-                .catch(error => {
-                    console.log(error)
-                })
+            setOtherUser(chatInfo?.participants?.find(item => item._id !== loggedInUser._id));
         }
     }, [chatInfo, loggedInUser]);
 

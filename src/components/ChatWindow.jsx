@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import Cookies from 'js-cookie';
 import TypingIndicator from './TypingIndicator';
-import axios from 'axios';
-import { baseUrl, extractFirstName } from '../utils/helper';
+import { extractFirstName } from '../utils/helper';
 import { useAuth } from '../context/Context';
 import Skeleton from 'react-loading-skeleton';
 
@@ -31,7 +29,7 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
     socket.on("receive-typing-stop-flag", (data) => {
       setOtherUserTyping(null);
     })
-  }, [socket])
+  }, [socket, otherUserTyping])
 
 
   useEffect(() => {
@@ -45,28 +43,7 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
     });
   })
 
-  useEffect(() => {
-    const secondUser = (chatInfo) => {
-      return chatInfo?.participants?.find(item => item._id !== loggedInUser._id);
-    }
 
-    // otheruser id
-    const { _id } = secondUser(chatInfo);
-    if (Object.keys(chatInfo).length > 0 && roomName !== "") {
-      axios.get(`${baseUrl}/chats/get-messages-list/?chatId=${chatInfo._id}&otherUserId=${_id}`, {
-        headers: {
-          Authorization: `Bearer ${Cookies.get("accessToken")}`
-        },
-        withCredentials: true
-      })
-        .then((response) => {
-          setChatMessageList(response.data.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-    }
-  }, [chatInfo]);
 
 
   return (
@@ -117,7 +94,7 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
       {/* Typing Indicator */}
       {otherUserTyping && (
         <div className="flex items-end gap-2">
-          <div className="bg-gray-700 rounded-xl rounded-bl-sm inline-block">
+          <div className="bg-gray-700 rounded-xl rounded-bl-sm inline-block p-4">
             {chatInfo.isGroupChat && <p className='text-xs text-cyan-300 font-bold px-3 pt-2'>{extractFirstName(otherUserTyping?.userName)}</p>}
             <TypingIndicator />
           </div>

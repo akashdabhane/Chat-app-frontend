@@ -47,6 +47,7 @@ function UserProfilePopup({ closeProfilePopup }) {
                 // Create a FormData object to properly send the file
                 const formData = new FormData();
                 formData.append("profileImage", file);
+                // console.log(formData)
 
                 const response = await axios.patch(`${baseUrl}/users/update-user-profile-picture`, formData, {
                     withCredentials: true,

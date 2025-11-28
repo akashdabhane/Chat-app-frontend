@@ -59,6 +59,7 @@ function CreateChatPopUp({ closeCreateChatPopup, setRoomName, roomName }) {
                 },
                 withCredentials: true,
             }).then((createdRoom) => {
+                // console.log(createdRoom.data.data)
                 setChatInfo(createdRoom.data.data);
                 setRoomName(createdRoom.data.data._id);
                 navigate(`/`);
@@ -111,9 +112,9 @@ function CreateChatPopUp({ closeCreateChatPopup, setRoomName, roomName }) {
                         <div className="flex justify-center items-center pt-10 bg-gray-800">
                             Loading...
                         </div>
-                    ) : hasSearched && searchResult.length > 0 ? (
+                    ) : (hasSearched && searchResult?.length > 0 && searchResult[0] !== null) ? (
                         <div className="space-y-1">
-                            {searchResult.map((user) => (
+                            {searchResult?.map((user) => (
                                 <UserSearchResult key={user._id} user={user} onUserClick={handleUserClick} />
                             ))}
                         </div>
