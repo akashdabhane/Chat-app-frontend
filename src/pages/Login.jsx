@@ -37,22 +37,59 @@ export default function Login() {
     })
 
     const handleLogin = async (formData) => {
+        setLoading(true);
+        setError(''); // Clear any previous errors
+        
         try {
-            const response = await axios.post(`${baseUrl}/users/login`, formData);
-            console.log(response);
-            if (response?.status === 200) {
-                setError('login successful!');
-                Cookies.set('accessToken', response.data.data.accessToken, { expires: 1 }); // set token in cookies
-                Cookies.set('refreshToken', response.data.data.refreshToken, { expires: 1 }); // set token in cookies
+            const response = await axios.post(`${baseUrl}/users/login`, formData, {
+                withCredentials: true // Important for cookies
+            });
 
-                setLoggedInUser(response.data.data.user)
+            if (response?.status === 200 && response?.data?.success) {
+                // Set tokens in cookies
+                Cookies.set('accessToken', response.data.data.accessToken, { expires: 1 });
+                Cookies.set('refreshToken', response.data.data.refreshToken, { expires: 1 });
+
+                // Set logged in user
+                setLoggedInUser(response.data.data.user);
+                
+                // Navigate to home page
                 navigate("/");
             } else {
-                setError('Invalid email or password');
+                setError('Login failed. Please try again.');
             }
         } catch (error) {
-            console.log(error)
-            setError(error.message || 'Error occured while logging in');
+            // Handle different types of errors
+            if (error.response) {
+                // Server responded with error status
+                const statusCode = error.response.status;
+                const errorMessage = error.response.data?.message || error.response.data?.error || 'An error occurred';
+                
+                switch (statusCode) {
+                    case 400:
+                        setError(errorMessage || 'All fields are required');
+                        break;
+                    case 401:
+                        setError('Invalid email or password');
+                        break;
+                    case 404:
+                        setError('User not found with this email');
+                        break;
+                    case 500:
+                        setError('Server error. Please try again later.');
+                        break;
+                    default:
+                        setError(errorMessage || 'Login failed. Please try again.');
+                }
+            } else if (error.request) {
+                // Request was made but no response received
+                setError('Network error. Please check your internet connection and try again.');
+            } else {
+                // Something else happened
+                setError('An unexpected error occurred. Please try again.');
+            }
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -88,7 +125,10 @@ export default function Login() {
                                     name="email"
                                     placeholder='Email Address'
                                     value={formik.values.email}
-                                    onChange={formik.handleChange}
+                                    onChange={(e) => {
+                                        formik.handleChange(e);
+                                        if (error) setError(''); // Clear error when user starts typing
+                                    }}
                                     onBlur={formik.handleBlur}
                                 />
                             </div>
@@ -107,7 +147,10 @@ export default function Login() {
                                     autoComplete='current-password'
                                     placeholder='Password'
                                     value={formik.values.password}
-                                    onChange={formik.handleChange}
+                                    onChange={(e) => {
+                                        formik.handleChange(e);
+                                        if (error) setError(''); // Clear error when user starts typing
+                                    }}
                                     onBlur={formik.handleBlur}
                                 />
                                 <button

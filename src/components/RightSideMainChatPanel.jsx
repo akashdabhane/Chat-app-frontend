@@ -16,22 +16,12 @@ import EmojiPicker from "emoji-picker-react";
 function RightSideMainChatPanel({ setShowChatProfile, isUserTyping, roomName, handleInputChange }) {
     const [chatMessageList, setChatMessageList] = useState([]);
     const [message, setMessage] = useState("");
-    const { socket, chatInfo, loggedInUser } = useAuth();
+    const { socket, chatInfo, loggedInUser, setNewMessageReceived, updateChatList } = useAuth();
     const [showImoji, setShowImoji] = useState(false);
     const inputRef = useRef(null);
     const [previewFile, setPreviewFile] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
     const formData = new FormData();
-
-
-
-    // Your logic for receiving messages would go in a useEffect, e.g.:
-    // useEffect(() => {
-    //   socket.on("receive_message", (data) => {
-    //     setChatMessageList((list) => [...list, data.messageData]);
-    //   });
-    // }, [socket]);
-
 
     
     const handleFileUpload = async (e) => {
@@ -59,10 +49,14 @@ function RightSideMainChatPanel({ setShowChatProfile, isUserTyping, roomName, ha
                 message: message,
                 room: roomName,
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }),
+                createdAt: new Date().toISOString(),
             };
             setChatMessageList([...chatMessageList, messageData]);
             socket.emit("send_message", { roomName, messageData });
+            // Immediately update LeftPanel to move this chat to the top
+            updateChatList(roomName, messageData);
             setMessage("");
+            // handleInputChange("")    // becoz of typing indicator on both side
         }
     };
 

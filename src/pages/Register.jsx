@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useFormik } from 'formik';
 import { registrationSchema } from '../validationSchema/registrationSchema';
 import { baseUrl } from '../utils/helper';
-import Cookies from 'js-cookie';
 import { FiMail, FiEye, FiEyeOff, FiLock, FiUser, FiUserPlus } from "react-icons/fi";
 
 export default function Register() {
-    const [formData, setFormData] = useState(null);
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -31,37 +29,61 @@ export default function Register() {
         validateOnBlur: false,
         // By disabling validation onChange and onBlur formik will validate on submit.
         onSubmit: (values, action) => {
-            setFormData(values);
-
+            // Remove confirmPassword before sending to API
+            const { confirmPassword, ...registerData } = values;
+            handleRegister(registerData);
+            
             // to get rid of all the values after submitting the form
             action.resetForm();
         }
     })
 
-
-    useEffect(() => {
-        if (formData !== null) {
-            try {
-                axios.post(`${baseUrl}/users/register`, formData, {
-                    withCredentials: true,
-                    headers: {
-                        'Authorization': `Bearer ${Cookies.get('accessToken')}`,
-                    }
-                })
-                    .then((data) => {
-                        setError('registration successful!');
-                        navigate("/login");
-                    })
-                    .catch((error) => {
-                        alert(error);
-                    });
-
-                // upload image to the cloudinary
-            } catch (error) {
-                console.log(error);
+    const handleRegister = async (formData) => {
+        setLoading(true);
+        setError(''); // Clear any previous errors
+        
+        try {
+            const response = await axios.post(`${baseUrl}/users/register`, formData, {
+                withCredentials: true // Important for cookies
+            });
+            
+            if (response?.status === 201) {
+                // Registration successful, navigate to login
+                navigate("/login");
+            } else {
+                setError('Registration failed. Please try again.');
             }
+        } catch (error) {
+            // Handle different types of errors
+            if (error.response) {
+                // Server responded with error status
+                const statusCode = error.response.status;
+                const errorMessage = error.response.data?.message || error.response.data?.error || 'An error occurred';
+                
+                switch (statusCode) {
+                    case 400:
+                        setError(errorMessage || 'All fields are required');
+                        break;
+                    case 409:
+                        setError('User with this email already exists');
+                        break;
+                    case 500:
+                        setError('Server error. Please try again later.');
+                        break;
+                    default:
+                        setError(errorMessage || 'Registration failed. Please try again.');
+                }
+            } else if (error.request) {
+                // Request was made but no response received
+                setError('Network error. Please check your internet connection and try again.');
+            } else {
+                // Something else happened
+                setError('An unexpected error occurred. Please try again.');
+            }
+        } finally {
+            setLoading(false);
         }
-    }, [formData, navigate])
+    }
 
     return (
         <div className="min-h-screen w-full bg-gray-900 text-white flex items-center justify-center font-sans p-4">
@@ -94,7 +116,10 @@ export default function Register() {
                                     className={`w-full pl-4 bg-gray-700 border-none outline-none`}
                                     type="text" name='name' placeholder='Your Name'
                                     value={formik.values.name}
-                                    onChange={formik.handleChange}
+                                    onChange={(e) => {
+                                        formik.handleChange(e);
+                                        if (error) setError(''); // Clear error when user starts typing
+                                    }}
                                     onBlur={formik.handleBlur}
                                 />
                             </div>
@@ -109,7 +134,10 @@ export default function Register() {
                                     className={`w-full pl-4 bg-gray-700 border-none outline-none`}
                                     type="email" name="email" placeholder='Email Address'
                                     value={formik.values.email}
-                                    onChange={formik.handleChange}
+                                    onChange={(e) => {
+                                        formik.handleChange(e);
+                                        if (error) setError(''); // Clear error when user starts typing
+                                    }}
                                     onBlur={formik.handleBlur}
                                 />
                             </div>
@@ -125,7 +153,10 @@ export default function Register() {
                                     type={showPassword ? "text" : "password"}
                                     name="password" placeholder='Create Password'
                                     value={formik.values.password}
-                                    onChange={formik.handleChange}
+                                    onChange={(e) => {
+                                        formik.handleChange(e);
+                                        if (error) setError(''); // Clear error when user starts typing
+                                    }}
                                     onBlur={formik.handleBlur}
                                 />
                                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-gray-400 hover:text-cyan-400 transition-colors">
@@ -144,7 +175,10 @@ export default function Register() {
                                     type={showConfirmPassword ? "text" : "password"}
                                     name="confirmPassword" placeholder='Confirm Password'
                                     value={formik.values.confirmPassword}
-                                    onChange={formik.handleChange}
+                                    onChange={(e) => {
+                                        formik.handleChange(e);
+                                        if (error) setError(''); // Clear error when user starts typing
+                                    }}
                                     onBlur={formik.handleBlur}
                                 />
                                 <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="text-gray-400 hover:text-cyan-400 transition-colors">

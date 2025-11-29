@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Cookies from 'js-cookie';
 import { FiMoreVertical } from 'react-icons/fi';
 import { BiSearchAlt2 } from "react-icons/bi";
@@ -15,8 +15,9 @@ export default function LeftPanel({ setRoomName, showUserProfile, setShowUserPro
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [activeChatId, setActiveChatId] = useState(null);
+    const [highlightedChatId, setHighlightedChatId] = useState(null);
     const searchBox = useRef(null);
-    const { setChatInfo, newMessageReceived, setNewMessageReceived } = useAuth();
+    const { setChatInfo, newMessageReceived, setNewMessageReceived, socket, setUpdateChatListFunction } = useAuth();
 
     useEffect(() => {
         axios.get(`${baseUrl}/chats/get-connected-chats`, {
@@ -24,14 +25,24 @@ export default function LeftPanel({ setRoomName, showUserProfile, setShowUserPro
             withCredentials: true
         })
             .then((data) => {
-                setUsers(data.data.data);
+                const chats = data.data.data;
+                setUsers(chats);
+                
+                // Join all chat rooms so we can receive messages even when chat is not open
+                if (chats && chats.length > 0 && socket) {
+                    chats.forEach((chat) => {
+                        if (chat._id) {
+                            socket.emit("join_room", chat._id);
+                        }
+                    });
+                }
             })
             .catch(error => console.log(error))
             .finally(() => {
                 setIsLoading(false);
                 setNewMessageReceived(false);
             });
-    }, [newMessageReceived, setNewMessageReceived]);
+    }, [newMessageReceived, setNewMessageReceived, socket]);
 
     const handleSearchClick = async (inputText) => {
         // Your existing search logic
@@ -42,6 +53,70 @@ export default function LeftPanel({ setRoomName, showUserProfile, setShowUserPro
         setRoomName(item._id);
         setActiveChatId(item._id);
     };
+
+    // Function to move a chat to the top based on roomName and message data
+    const moveChatToTop = useCallback((roomName, messageData) => {
+        setUsers(prevUsers => {
+            const chatIndex = prevUsers.findIndex(u => u._id === roomName);
+            
+            if (chatIndex === -1) {
+                // Chat not found, trigger a full refetch
+                setNewMessageReceived(true);
+                return prevUsers;
+            }
+
+            // Only highlight if the chat is not already at the top
+            if (chatIndex !== 0) {
+                // Highlight the chat that's moving to top
+                setHighlightedChatId(roomName);
+                // Remove highlight after animation completes
+                setTimeout(() => {
+                    setHighlightedChatId(null);
+                }, 600);
+            }
+
+            // Get the chat that received/sent the message
+            const updatedChat = { ...prevUsers[chatIndex] };
+            
+            // Update lastMessageDetails with the new message
+            const newMessage = {
+                message: messageData.message,
+                createdAt: messageData.createdAt || new Date().toISOString()
+            };
+            
+            updatedChat.lastMessageDetails = [newMessage];
+            
+            // Remove the chat from its current position
+            const remainingChats = prevUsers.filter(u => u._id !== roomName);
+            
+            // Put the updated chat at the top (most recent)
+            return [updatedChat, ...remainingChats];
+        });
+    }, [setNewMessageReceived]);
+
+    // Register the update function in context so other components can call it
+    useEffect(() => {
+        setUpdateChatListFunction(moveChatToTop);
+        
+        // Cleanup on unmount
+        return () => {
+            setUpdateChatListFunction(null);
+        };
+    }, [setUpdateChatListFunction, moveChatToTop]);
+
+    useEffect(() => {
+        const handleReceiveMessage = (data) => {
+            moveChatToTop(data.roomName, data.messageData);
+        };
+
+        socket.on("receive_message", handleReceiveMessage);
+
+        // Cleanup listener on unmount
+        return () => {
+            socket.off("receive_message", handleReceiveMessage);
+        };
+    }, [socket, moveChatToTop]);
+
 
     return (
         <>
@@ -81,10 +156,11 @@ export default function LeftPanel({ setRoomName, showUserProfile, setShowUserPro
                     {/* Chat List */}
                     <div className="overflow-y-auto flex-grow">
                         {users?.length > 0 ? (
-                            users.map((item) => {
+                            users.map((item, index) => {
                                 const hasLastMessageDetails = item?.lastMessageDetails?.length > 0;
                                 const lastMessageDateObj = hasLastMessageDetails ? new Date(item.lastMessageDetails[0].createdAt) : null;
                                 let lastMessageTime = "";
+                                const isHighlighted = highlightedChatId === item._id;
 
                                 if (lastMessageDateObj) {
                                     const now = new Date();
@@ -105,8 +181,17 @@ export default function LeftPanel({ setRoomName, showUserProfile, setShowUserPro
 
                                 return (
                                     <div
-                                        key={item._id}
-                                        className={`p-3 border-b-2 border-gray-700 cursor-pointer transition-colors duration-200 ${activeChatId === item._id ? 'bg-cyan-500/20' : 'hover:bg-gray-700/50'}`}
+                                        key={item?._id}
+                                        className={`p-3 border-b-2 border-gray-700 cursor-pointer transition-all duration-500 ease-in-out transform ${
+                                            isHighlighted 
+                                                ? 'bg-cyan-500/30 scale-[1.02] shadow-lg' 
+                                                : activeChatId === item._id 
+                                                    ? 'bg-cyan-500/20' 
+                                                    : 'hover:bg-gray-700/50'
+                                        }`}
+                                        style={{
+                                            transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        }}
                                         onClick={() => handleChatClick(item)}
                                     >
                                         <ChatLabel
