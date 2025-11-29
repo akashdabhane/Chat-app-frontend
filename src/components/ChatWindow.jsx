@@ -4,7 +4,7 @@ import { extractFirstName } from '../utils/helper';
 import { useAuth } from '../context/Context';
 import Skeleton from 'react-loading-skeleton';
 
-export default function ChatWindow({ isUserTyping, roomName, chatMessageList, setChatMessageList }) {
+export default function ChatWindow({ isUserTyping, roomName, chatMessageList, setChatMessageList, inputRef }) {
   const [userData, setUserData] = useState([]);
   const [otherUserTyping, setOtherUserTyping] = useState(null);
   const { socket, chatInfo, loggedInUser, setNewMessageReceived } = useAuth();
@@ -43,7 +43,9 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
     });
   })
 
-
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [chatInfo])
 
 
   return (

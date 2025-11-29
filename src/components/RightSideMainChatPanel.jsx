@@ -116,6 +116,7 @@ function RightSideMainChatPanel({ setShowChatProfile, isUserTyping, roomName, ha
                             setChatMessageList={setChatMessageList}
                             isUserTyping={isUserTyping}
                             roomName={roomName}
+                            inputRef={inputRef}
                         />
                     </ScrollToBottom>
 
