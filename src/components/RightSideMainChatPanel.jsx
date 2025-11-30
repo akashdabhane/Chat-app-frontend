@@ -148,7 +148,11 @@ function RightSideMainChatPanel({ setShowChatProfile, isUserTyping, roomName, ha
                         >
                             <BsEmojiSmile className="text-xl" />
                             {/* <Picker/> */}
-                            <div className="fixed bottom-[5.5rem] -ml-4">
+                            <div className="fixed bottom-[5.5rem] -ml-4
+                                [&_.EmojiPickerReact]:bg-[#1f2937]
+                                [&_.EmojiPickerReact]:rounded-xl
+                                [&_.EmojiPickerReact]:border-0
+                            ">
                                 <EmojiPicker
                                     open={showImoji}
                                     theme='dark'
@@ -179,7 +183,7 @@ function RightSideMainChatPanel({ setShowChatProfile, isUserTyping, roomName, ha
                             placeholder='Type a message...'
                             value={message}
                             onClick={() => setShowImoji(false)}
-                            onInput={(e) => { 
+                            onInput={(e) => {
                                 setMessage(e.target.value)
                                 handleInputChange(e.target.value)
                             }}
