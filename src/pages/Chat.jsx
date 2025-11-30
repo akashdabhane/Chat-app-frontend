@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import LeftPanel from '../components/LeftPanel';
 import '../styles/index.css';
 import UserProfilePopup from '../popups/UserProfilePopup';
@@ -14,28 +15,46 @@ export default function Chat() {
     const [showUserProfile, setShowUserProfile] = useState(false);
     const [showChatProfile, setShowChatProfile] = useState(false);
     const [showCreateChatPopup, setShowCreateChatPopup] = useState(false);
-    const { socket, loggedInUser } = useAuth();
+    const { socket, loggedInUser, chatInfo, setChatInfo } = useAuth();
+    const { chatId } = useParams();
+    const navigate = useNavigate();
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-    // This state is added to manage the view on mobile devices
-    const [selectedChat, setSelectedChat] = useState(null);
+    // Update mobile state on resize
+    useEffect(() => {
+        const checkScreenSize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        window.addEventListener("resize", checkScreenSize);
+        return () => window.removeEventListener("resize", checkScreenSize);
+    }, []);
+
+    // Handle chatId from URL for mobile navigation
+    useEffect(() => {
+        if (chatId) {
+            setRoomName(chatId);
+        } else {
+            // Clear roomName and chatInfo when navigating back to home
+            setRoomName("");
+            if (isMobile) {
+                setChatInfo(null);
+            }
+        }
+    }, [chatId, isMobile, setChatInfo]);
 
     useEffect(() => {
         if (roomName !== "") {
             socket.emit("join_room", roomName);
         }
-        console.log(roomName);
     }, [roomName, socket]);
 
-
     const handleInputChange = (inputText) => {
-        // 1st for text input and 2nd for file input
         if (inputText === "") {
             setIsUserTyping(false);
         } else {
             setIsUserTyping(true);
         }
     }
-
 
     useEffect(() => {
         const userName = loggedInUser.name;
@@ -45,43 +64,40 @@ export default function Chat() {
         socket.on('disconnect', () => {
             socket.emit('send-inactive-flag', { userName, userId });
         });
-    }, [])
+    }, [socket, loggedInUser])
 
-    // useEffect(() => {
-    //     const userId = loggedInUser._id;
-
-    //     // when user comes online
-    //     socket.emit("user-online", userId);
-    // }, [])
-
+    // Determine if chat panel should be visible on mobile based on URL
+    const showChatPanel = isMobile ? (chatId !== undefined && chatId !== null) : true;
+    const showLeftPanel = isMobile ? (!chatId) : true;
 
     return (
-        <div className='w-screen h-screen bg-gray-950 text-white flex overflow-hidden px-6 p-4'>
-            {/* Left Panel: Visible on desktop, conditionally visible on mobile */}
-            {/* <div className={`flex-shrink-0 w-full h-full ${selectedChat ? 'hidden' : 'flex'} md:flex flex-col`}> */}
-            {/* md:w-[350px] lg:w-[380px] xl:w-[420px] */}
-            <LeftPanel
-                setRoomName={setRoomName}
-                setShowUserProfile={setShowUserProfile}
-                showUserProfile={showUserProfile}
-                setShowCreateChatPopup={setShowCreateChatPopup}
-                showCreateChatPopup={showCreateChatPopup}
-                setSelectedChat={setSelectedChat} // Pass handler to update view
-            />
-            {/* </div> */}
+        <div className='w-screen h-screen bg-gray-950 text-white flex overflow-hidden md:px-6 md:p-4 p-0'>
+            {/* Left Panel: Hidden on mobile when chat is selected */}
+            {showLeftPanel && (
+                <div className="flex flex-shrink-0 w-full md:w-[30%] h-full">
+                    <LeftPanel
+                        setRoomName={setRoomName}
+                        setShowUserProfile={setShowUserProfile}
+                        showUserProfile={showUserProfile}
+                        setShowCreateChatPopup={setShowCreateChatPopup}
+                        showCreateChatPopup={showCreateChatPopup}
+                    />
+                </div>
+            )}
 
             {/* Right Panel: Hidden on mobile until a chat is selected */}
-            <div className={`flex-grow h-full ${selectedChat ? 'flex' : 'hidden'} md:flex flex-col`}>
-                <RightSideMainChatPanel
-                    setShowChatProfile={setShowChatProfile}
-                    socket={socket}
-                    isUserTyping={isUserTyping}
-                    roomName={roomName}
-                    setRoomName={setRoomName}
-                    handleInputChange={handleInputChange}
-                    onBack={() => setSelectedChat(null)} // Handler to go back on mobile
-                />
-            </div>
+            {showChatPanel && (
+                <div className="flex-grow h-full flex flex-col">
+                    <RightSideMainChatPanel
+                        setShowChatProfile={setShowChatProfile}
+                        socket={socket}
+                        isUserTyping={isUserTyping}
+                        roomName={roomName}
+                        setRoomName={setRoomName}
+                        handleInputChange={handleInputChange}
+                    />
+                </div>
+            )}
 
             {/* Popups (Modals) */}
             {showUserProfile && <UserProfilePopup closeProfilePopup={() => setShowUserProfile(false)} />}

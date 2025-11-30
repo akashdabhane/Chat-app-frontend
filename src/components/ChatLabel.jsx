@@ -14,27 +14,27 @@ function ChatLabel({ item, lastMessageText, lastMessageTime }) {
 
     return (
         <div className="flex justify-between items-center w-full">
-            <div className="flex items-center space-x-4 min-w-0">
+            <div className="flex items-center space-x-2 md:space-x-4 min-w-0 flex-grow">
                 <div className="relative flex-shrink-0">
                     <img 
-                        className='rounded-full w-12 h-12 object-cover bg-gray-700' 
+                        className='rounded-full w-10 h-10 md:w-12 md:h-12 object-cover bg-gray-700' 
                         src={profileImage || 'https://res.cloudinary.com/domlldpib/image/upload/v1727176756/chat-app-m/ggaqjqfhcnmz6nhnexrm.png'} 
                         alt="profile" 
                         onError={(e) => { e.target.onerror = null; e.target.src='https://res.cloudinary.com/domlldpib/image/upload/v1727176756/chat-app-m/ggaqjqfhcnmz6nhnexrm.png' }}
                     />
                 </div>
                 <div className="flex-grow min-w-0">
-                    <p className="font-bold truncate text-white">{displayName}</p>
-                    <p className='text-gray-400 text-sm truncate'>
+                    <p className="font-bold truncate text-white text-sm md:text-base">{displayName}</p>
+                    <p className='text-gray-400 text-xs md:text-sm truncate'>
                         {lastMessageText}
                     </p>
                 </div>
             </div>
 
-            <div className='text-xs text-gray-500 flex flex-col items-end space-y-1 flex-shrink-0 ml-2'>
+            <div className='text-[10px] md:text-xs text-gray-500 flex flex-col items-end space-y-1 flex-shrink-0 ml-2'>
                 <span className="whitespace-nowrap">{lastMessageTime}</span>
                 {item.unreadMessages > 0 && (
-                    <span className="bg-cyan-500 text-gray-900 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="bg-cyan-500 text-gray-900 text-[10px] md:text-xs font-bold rounded-full h-4 w-4 md:h-5 md:w-5 flex items-center justify-center">
                         {item.unreadMessages}
                     </span>
                 )}

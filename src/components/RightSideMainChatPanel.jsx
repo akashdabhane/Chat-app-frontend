@@ -121,11 +121,11 @@ function RightSideMainChatPanel({ setShowChatProfile, isUserTyping, roomName, ha
                     </ScrollToBottom>
 
                     {previewFile && (
-                        <div className='relative p-2 w-fit bg-gray-800 rounded-lg flex ml-[6.5rem]'>
+                        <div className='relative p-2 w-fit bg-gray-800 rounded-lg flex ml-4 md:ml-[6.5rem] max-w-[calc(100%-2rem)]'>
                             <img
                                 src={previewFile}
                                 alt="preview"
-                                className='rounded-xl w-fit h-80 object-contain'
+                                className='rounded-xl w-fit max-w-full h-60 md:h-80 object-contain'
                             />
 
                             {/* Cancel preview */}
@@ -134,21 +134,21 @@ function RightSideMainChatPanel({ setShowChatProfile, isUserTyping, roomName, ha
                                     setPreviewFile(null);
                                     setSelectedFile(null);
                                 }}
-                                className='absolute top-1 right-1 bg-black text-white rounded-[50%] w-6 h-6 cursor-pointer border-none'
+                                className='absolute top-1 right-1 bg-black text-white rounded-[50%] w-6 h-6 cursor-pointer border-none touch-manipulation flex items-center justify-center text-sm'
                             >
                                 ✕
                             </button>
                         </div>
                     )}
 
-                    <div className="flex items-center bg-gray-800 p-2 border-t-2 border-gray-700">
+                    <div className="flex items-center bg-gray-800 p-2 md:p-2 border-t-2 border-gray-700">
                         <button
-                            className='p-3 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-colors'
+                            className='p-2 md:p-3 text-gray-400 hover:text-white active:text-white hover:bg-gray-700 active:bg-gray-600 rounded-full transition-colors touch-manipulation'
                             onClick={() => setShowImoji(!showImoji)}
                         >
-                            <BsEmojiSmile className="text-xl" />
+                            <BsEmojiSmile className="text-lg md:text-xl" />
                             {/* <Picker/> */}
-                            <div className="fixed bottom-[5.5rem] -ml-4
+                            <div className="fixed bottom-[4.5rem] md:bottom-[5.5rem] left-2 md:left-auto md:-ml-4 right-2 md:right-auto z-50
                                 [&_.EmojiPickerReact]:bg-[#1f2937]
                                 [&_.EmojiPickerReact]:rounded-xl
                                 [&_.EmojiPickerReact]:border-0
@@ -160,7 +160,7 @@ function RightSideMainChatPanel({ setShowChatProfile, isUserTyping, roomName, ha
                                 />
                             </div>
                         </button>
-                        <button className='p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-full transition-colors cursor-default'>
+                        <button className='p-2 text-gray-400 hover:text-white active:text-white hover:bg-gray-700 active:bg-gray-600 rounded-full transition-colors cursor-default touch-manipulation'>
                             <input
                                 className='hidden cursor-pointer'
                                 id="file"
@@ -172,12 +172,12 @@ function RightSideMainChatPanel({ setShowChatProfile, isUserTyping, roomName, ha
                                 }}
                             />
                             <label htmlFor="file" className='cursor-pointer'>
-                                <AiFillFileAdd className="text-xl" />
+                                <AiFillFileAdd className="text-lg md:text-xl" />
                             </label>
                         </button>
 
                         <input
-                            className='w-full p-3 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-cyan-500 mx-2 transition-all'
+                            className='w-full p-2 md:p-3 bg-gray-700 text-white rounded-lg outline-none focus:ring-2 focus:ring-cyan-500 mx-1 md:mx-2 transition-all text-sm md:text-base'
                             ref={inputRef}
                             type="text"
                             placeholder='Type a message...'
@@ -192,11 +192,11 @@ function RightSideMainChatPanel({ setShowChatProfile, isUserTyping, roomName, ha
                         />
 
                         <button
-                            className='p-3 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-cyan-600 text-white hover:bg-cyan-500'
+                            className='p-2 md:p-3 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-cyan-600 text-white hover:bg-cyan-500 active:bg-cyan-700 touch-manipulation'
                             onClick={handleSendClick}
                             disabled={!message.trim() && !selectedFile}
                         >
-                            <BiSend className='text-xl' />
+                            <BiSend className='text-lg md:text-xl' />
                         </button>
                     </div>
                 </>

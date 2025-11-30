@@ -22,7 +22,7 @@ const SkeletonItem = () => (
 
 export default function ContactListSkeleton() {
     return (
-        <div className="w-full md:w-[40%] lg:w-[30%] bg-gray-800 flex flex-col h-full overflow-hidden rounded-l-2xl">
+        <div className="w-full md:w-[40%] lg:w-full bg-gray-800 flex flex-col h-full overflow-hidden rounded-l-2xl">
             {/* Header Skeleton */}
             <div className="flex items-center p-3 justify-between border-b-2 border-gray-700 flex-shrink-0">
                 {/* Search Bar Skeleton */}

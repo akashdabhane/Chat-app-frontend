@@ -49,7 +49,7 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
 
 
   return (
-    <div className="p-4 md:py-1 md:p-6 space-y-1">
+    <div className="p-2 md:p-4 md:py-1 md:p-6 space-y-1">
       {chatMessageList.map((item, index) => {
         const messageDate = new Date(item.createdAt || Date.now());
 
@@ -64,14 +64,14 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
           <React.Fragment key={item._id || index}>
             {/* Date Separator */}
             {showDate && (
-              <div className="text-center my-3">
-                <span className='bg-gray-800 text-gray-400 text-xs font-semibold px-3 py-1 rounded-full'>{currentDate}</span>
+              <div className="text-center my-2 md:my-3">
+                <span className='bg-gray-800 text-gray-400 text-xs font-semibold px-2 md:px-3 py-1 rounded-full'>{currentDate}</span>
               </div>
             )}
 
             {/* Message Bubble */}
-            <div className={`flex items-end gap-2 ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-xs md:max-w-md lg:max-w-lg px-3 py-2 rounded-xl flex flex-col ${isMyMessage ? 'bg-cyan-600 text-white rounded-br-sm' : 'bg-gray-700 text-white rounded-bl-sm'}`}>
+            <div className={`flex items-end gap-1 md:gap-2 ${isMyMessage ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[75%] sm:max-w-xs md:max-w-md lg:max-w-lg px-2 md:px-3 py-1.5 md:py-2 rounded-xl flex flex-col ${isMyMessage ? 'bg-cyan-600 text-white rounded-br-sm' : 'bg-gray-700 text-white rounded-bl-sm'}`}>
 
                 {/* Sender's Name in a Group Chat */}
                 {chatInfo.isGroupChat && !isMyMessage && (
@@ -81,10 +81,10 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
                 )}
 
                 {/* Message Content */}
-                <p className="text-sm break-words">{item.message}</p>
+                <p className="text-xs md:text-sm break-words">{item.message}</p>
 
                 {/* Timestamp */}
-                <div className='text-xs text-gray-300 mt-1 self-end'>
+                <div className='text-[10px] md:text-xs text-gray-300 mt-0.5 md:mt-1 self-end'>
                   {messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                 </div>
               </div>
@@ -95,9 +95,9 @@ export default function ChatWindow({ isUserTyping, roomName, chatMessageList, se
 
       {/* Typing Indicator */}
       {otherUserTyping && (
-        <div className="flex items-end gap-2">
-          <div className="bg-gray-700 rounded-xl rounded-bl-sm inline-block p-4">
-            {chatInfo.isGroupChat && <p className='text-xs text-cyan-300 font-bold px-3 pt-2'>{extractFirstName(otherUserTyping?.userName)}</p>}
+        <div className="flex items-end gap-1 md:gap-2">
+          <div className="bg-gray-700 rounded-xl rounded-bl-sm inline-block p-2 md:p-4">
+            {chatInfo.isGroupChat && <p className='text-xs text-cyan-300 font-bold px-2 md:px-3 pt-1 md:pt-2'>{extractFirstName(otherUserTyping?.userName)}</p>}
             <TypingIndicator />
           </div>
         </div>

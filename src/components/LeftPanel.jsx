@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { FiMoreVertical } from 'react-icons/fi';
 import { BiSearchAlt2 } from "react-icons/bi";
@@ -18,6 +19,16 @@ export default function LeftPanel({ setRoomName, showUserProfile, setShowUserPro
     const [highlightedChatId, setHighlightedChatId] = useState(null);
     const searchBox = useRef(null);
     const { setChatInfo, newMessageReceived, setNewMessageReceived, socket, setUpdateChatListFunction } = useAuth();
+    const navigate = useNavigate();
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const checkScreenSize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        window.addEventListener("resize", checkScreenSize);
+        return () => window.removeEventListener("resize", checkScreenSize);
+    }, []);
 
     useEffect(() => {
         axios.get(`${baseUrl}/chats/get-connected-chats`, {
@@ -52,6 +63,10 @@ export default function LeftPanel({ setRoomName, showUserProfile, setShowUserPro
         setChatInfo(item);
         setRoomName(item._id);
         setActiveChatId(item._id);
+        // Navigate to chat route on mobile
+        if (isMobile) {
+            navigate(`/chat/${item._id}`);
+        }
     };
 
     // Function to move a chat to the top based on roomName and message data
@@ -123,13 +138,13 @@ export default function LeftPanel({ setRoomName, showUserProfile, setShowUserPro
             {isLoading ? (
                 <ContactListSkeleton />
             ) : (
-                <div className="chats w-full md:w-[40%] lg:w-[30%] bg-gray-800 lg:rounded-l-2xl text-white flex flex-col h-full">
+                <div className="chats w-full md:w-[40%] lg:w-full bg-gray-800 lg:rounded-l-2xl text-white flex flex-col h-full">
                     {/* Header */}
-                    <div className="flex items-center p-3 justify-between border-b-2 border-gray-700 flex-shrink-0">
-                        <div className="relative w-full mr-4">
-                            <BiSearchAlt2 className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl' />
+                    <div className="flex items-center p-2 md:p-3 justify-between border-b-2 border-gray-700 flex-shrink-0">
+                        <div className="relative w-full mr-2 md:mr-4">
+                            <BiSearchAlt2 className='absolute left-2 md:left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg md:text-xl' />
                             <input
-                                className='w-full p-2 pl-10 text-md outline-none border-2 border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-cyan-500 transition-all'
+                                className='w-full p-2 md:p-2 pl-8 md:pl-10 text-sm md:text-md outline-none border-2 border-gray-700 bg-gray-900 rounded-lg focus:ring-2 focus:ring-cyan-500 transition-all'
                                 type="text"
                                 name="searchUser"
                                 placeholder='Search or start new chat...'
@@ -137,16 +152,16 @@ export default function LeftPanel({ setRoomName, showUserProfile, setShowUserPro
                                 onKeyDown={(e) => e.key === 'Enter' && handleSearchClick(searchBox.current.value)}
                             />
                         </div>
-                        <div className='flex items-center space-x-2 text-gray-300'>
-                            <button onClick={() => setShowCreateChatPopup(!showCreateChatPopup)} className="p-2 hover:bg-gray-700 rounded-full transition-colors relative group">
-                                <IoIosAddCircleOutline className='text-2xl cursor-pointer' />
-                                <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className='flex items-center space-x-1 md:space-x-2 text-gray-300'>
+                            <button onClick={() => setShowCreateChatPopup(!showCreateChatPopup)} className="p-2 hover:bg-gray-700 active:bg-gray-600 rounded-full transition-colors relative group touch-manipulation">
+                                <IoIosAddCircleOutline className='text-xl md:text-2xl cursor-pointer' />
+                                <span className="hidden md:block absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     New Chat
                                 </span>
                             </button>
-                            <button onClick={() => setShowUserProfile(!showUserProfile)} className="p-2 hover:bg-gray-700 rounded-full transition-colors relative group">
-                                <FiMoreVertical className='text-2xl cursor-pointer' />
-                                <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => setShowUserProfile(!showUserProfile)} className="p-2 hover:bg-gray-700 active:bg-gray-600 rounded-full transition-colors relative group touch-manipulation">
+                                <FiMoreVertical className='text-xl md:text-2xl cursor-pointer' />
+                                <span className="hidden md:block absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-900 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     More
                                 </span>
                             </button>
@@ -182,12 +197,12 @@ export default function LeftPanel({ setRoomName, showUserProfile, setShowUserPro
                                 return (
                                     <div
                                         key={item?._id}
-                                        className={`p-3 border-b-2 border-gray-700 cursor-pointer transition-all duration-500 ease-in-out transform ${
+                                        className={`p-2 md:p-3 border-b-2 border-gray-700 cursor-pointer transition-all duration-500 ease-in-out transform touch-manipulation ${
                                             isHighlighted 
                                                 ? 'bg-cyan-500/30 scale-[1.02] shadow-lg' 
                                                 : activeChatId === item._id 
                                                     ? 'bg-cyan-500/20' 
-                                                    : 'hover:bg-gray-700/50'
+                                                    : 'hover:bg-gray-700/50 active:bg-gray-700/70'
                                         }`}
                                         style={{
                                             transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
